@@ -1,0 +1,11 @@
+[
+  {
+    "id": "8236d104-1c0a-4b31-875c-f9a0b5f61b1a",
+    "title": "Producto 2",
+    "description": "Descripción del Producto 2",
+    "price": 200,
+    "code": "P002",
+    "stock": 55,
+    "category": "Categoría 2"
+  }
+]
