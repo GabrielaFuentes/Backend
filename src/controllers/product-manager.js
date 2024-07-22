@@ -17,9 +17,9 @@ class ProductManager {
             this.products = [];
         }
     }
-    async addProduct({ title, description, price, thumbnail, code, stock, status, category }) {
+    async addProduct({ title, description, code, price, status, stock, category, thumbnails  }) {
         const id = uuidv4();
-        let newProduct = { id, title, description, price, thumbnail, code, stock, status, category };
+        let newProduct = { id, title, description, code, price, status, stock, category, thumbnails };
         this.products.push(newProduct);
 
         try {
@@ -59,11 +59,11 @@ async deleteProduct(id) {
     }
 }
 
-async updateProduct(id, { title, description, price, thumbnail, code, stock, status, category }) {
+async updateProduct(id, { title, description, code, price, status, stock, category, thumbnails }) {
 
     const index = this.products.findIndex(product => product.id === id);
     if (index !== -1) {
-        this.products[index] = { id, title, description, price, thumbnail, code, stock, status, category };
+        this.products[index] = { id, title, description, price, thumbnails, code, stock, status, category };
         try {
             await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
         } catch (error) {

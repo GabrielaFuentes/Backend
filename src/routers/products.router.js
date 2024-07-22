@@ -43,10 +43,10 @@ router.get("/:pid", async (req, res) => {
 //La ruta raíz POST / deberá agregar un nuevo producto
 
 router.post("/", async (req, res) => {
-    const { title, description, price, code, stock, category, thumbnails } = req.body;
+    const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
     // Validación de campos obligatorios
-    if (!title || !description || !price || !code || !stock || !category) {
+    if (!title || !description || !price || !status || !code || !stock || !category) {
         return res.status(400).send({ status: "error", message: "Todos los campos son obligatorios" });
     }
 
