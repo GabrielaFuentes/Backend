@@ -1,4 +1,5 @@
-const form = document.getElementById('productForm');
+const form = document.getElementById('addProductForm');
+const socket = io(); // Conectar al servidor de Socket.IO
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -27,13 +28,13 @@ form.addEventListener('submit', async (event) => {
         });
 
         if (response.ok) {
-            alert('Producto agregado con éxito');
-            event.target.reset(); // Limpiar el formulario
+            alert('Producto agregado exitosamente');
+            form.reset();
+            socket.emit('agregarProducto', product); // Emitir evento para agregar producto
         } else {
             alert('Error al agregar el producto');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al agregar el producto');
     }
 });

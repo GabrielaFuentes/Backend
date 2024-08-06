@@ -5,15 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos en Tiempo Real</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 
 <body>
-    <h2>Aca mostramos todos los productos en tiempo real</h2>
+    <div class="container mt-5">
+        <h2>Aca mostramos todos los productos en tiempo real</h2>
+        <div id="contenedorProductos"></div>
+    </div>
 
-    <div id="contenedorProductos"></div>
-
-    <script src="/socket.io/socket.io.js"></script> <!-- Cargar solo una versión de Socket.IO -->
-    <script src="/js/main.js"></script> <!-- Asegúrate de que esta ruta sea correcta -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/addProduct.js"></script>
 </body>
 
 </html>
