@@ -1,36 +1,61 @@
-/* Desarrollar el servidor basado en Node.JS y express, que escuche en el puerto 8080 y disponga de dos grupos de rutas: /products y /carts. Dichos endpoints estarán implementados con el router de express, con las siguientes especificaciones:
-Para el manejo de productos, el cual tendrá su router en /api/products/ , configurar las siguientes rutas:
-La ruta raíz GET / deberá listar todos los productos de la base.
-La ruta GET /:pid deberá traer sólo el producto con el id proporcionado
-La ruta raíz POST / deberá agregar un nuevo producto con los campos:
-id: Number/String (A tu elección, el id NO se manda desde body, se autogenera como lo hemos visto desde los primeros entregables, asegurando que NUNCA se repetirán los ids en el archivo.
-title:String, description:String,code:String,price:Number,status:Boolean,stock:Number,category:String,thumbnails:Array de Strings que contengan las rutas donde están almacenadas las imágenes referentes a dicho producto
-La ruta GET /:cid deberá listar los productos que pertenezcan al carrito con el parámetro cid proporcionados.
-La ruta POST  /:cid/product/:pid deberá agregar el producto al arreglo “products” del carrito seleccionado, agregándose como un objeto bajo el siguiente formato:
-product: SÓLO DEBE CONTENER EL ID DEL PRODUCTO (Es crucial que no agregues el producto completo)
-quantity: debe contener el número de ejemplares de dicho producto. El producto, de momento, se agregará de uno en uno.
+import express from "express";
+import { Server } from "socket.io"; // Importar Server de socket.io
+import http from "http"; // Importar el módulo http de Node.js
+import path from 'path';
+import { fileURLToPath } from 'url';
+import productRouter from "./routers/products.router.js"; // Importar correctamente
+import cartRouter from "./routers/carts.router.js"; // Importar correctamente
+import viewsRouter from "./routers/views.router.js"; // Importar correctamente
+import exphbs from 'express-handlebars';
 
-Además, si un producto ya existente intenta agregarse al producto, incrementar el campo quantity de dicho producto. 
- */
+import ProductManager from "./controllers/product-manager.js"; // Importar correctamente
+import CartsManager from "./controllers/carts-manager.js"; // Importar correctamente
 
-import express from "express"; 
-const app = express(); 
-const PORT = 8080; 
+const app = express();
+const PORT = 8080;
 
-import productRouter from "./routers/products.router.js";
-import cartRouter from "./routers/carts.router.js";
+const productManager = new ProductManager();
+const cartsManager = new CartsManager();
 
-//NO SE OLVIDEN DE LOS MIDDLEWARE: 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public'))); // Asegúrate de que la ruta sea correcta
 
-//Rutas
+// Configuración de Handlebars
+app.engine('handlebars', exphbs.engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// Rutas
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
+app.use("/", viewsRouter);
 
-//Listen 
+// Crear el servidor HTTP
+const httpServer = http.createServer(app);
 
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+// Crear instancia de Socket.IO
+const io = new Server(httpServer);
+
+io.on("connection", async (socket) => {
+    console.log("Nuevo cliente conectado");
+
+    socket.emit("productos", await productManager.getProducts());
+
+    socket.on("eliminarProducto", async (id) => {
+        await productManager.deleteProduct(id);
+        io.emit("productos", await productManager.getProducts()); // Asegúrate de que se llame a la función
+    });
+});
+// Iniciar el servidor HTTP
+httpServer.listen(PORT, () => {
     console.log(`Escuchando en el http://localhost:${PORT}`);
 });
 
+
+
+
+export { productManager, cartsManager };

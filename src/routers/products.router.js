@@ -1,12 +1,10 @@
 import { Router } from "express";
 import ProductManager from "../controllers/product-manager.js";
 
-const router = Router(); 
+const router = Router();
 const manager = new ProductManager("./src/data/productos.json");
 
-//ruta ‘/products’, la cual debe leer el archivo de productos y devolverlos dentro de un objeto.
 
-//Realizamos ejemplo con el limit:
 
 router.get("/", async (req, res) => {
     let limit = req.query.limit;
@@ -24,7 +22,6 @@ router.get("/", async (req, res) => {
 })
 
 
-//ruta ‘/products/:pid’, la cual debe recibir por req.params el pid (product Id), y devolver sólo el producto solicitado, en lugar de todos los productos. 
 
 router.get("/:pid", async (req, res) => {
     let id = req.params.pid;
@@ -40,12 +37,10 @@ router.get("/:pid", async (req, res) => {
     }
 });
 
-//La ruta raíz POST / deberá agregar un nuevo producto
 
 router.post("/", async (req, res) => {
     const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
-    // Validación de campos obligatorios
     if (!title || !description || !price || !status || !code || !stock || !category) {
         return res.status(400).send({ status: "error", message: "Todos los campos son obligatorios" });
     }
@@ -58,13 +53,12 @@ router.post("/", async (req, res) => {
     }
 });
 
-//actualizar las product
+
 
 router.put("/:pid", async (req, res) => {
     const id = req.params.pid;
     const { title, description, price, code, stock, category, thumbnails } = req.body;
 
-    // Validación de campos obligatorios
     if (!title || !description || !price || !code || !stock || !category) {
         return res.status(400).send({ status: "error", message: "Todos los campos son obligatorios" });
     }
@@ -77,8 +71,8 @@ router.put("/:pid", async (req, res) => {
     }
 });
 
-// delete
-router.delete("/:pid", async (req,res)=>{
+
+router.delete("/:pid", async (req, res) => {
     let id = req.params.pid;
     try {
         await manager.deleteProduct(id);
@@ -88,6 +82,8 @@ router.delete("/:pid", async (req,res)=>{
     }
 
 })
+
+
 
 
 export default router;

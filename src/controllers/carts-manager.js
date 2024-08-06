@@ -2,9 +2,9 @@ import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 class CartManager {
-    constructor(path) {
-        this.path = path;
-        this.carts = []; 
+    constructor() {
+        this.path = './src/data/carts.json';;
+        this.carts = [];
         this.loadCarts();
     }
 
@@ -35,62 +35,62 @@ class CartManager {
         return newCart;
     }
 
-async getCarts() {
-    return this.carts;
-}
+    async getCarts() {
+        return this.carts;
+    }
 
-async getCartById(id) {
-  
-    return this.carts.find(cart => cart.id === id);
+    async getCartById(id) {
 
-}
+        return this.carts.find(cart => cart.id === id);
 
-async deleteCart(id) {
-    const index = this.carts.findIndex(cart => cart.id === id);
-    if (index !== -1) {
-        this.carts.splice(index, 1);
+    }
+
+    async deleteCart(id) {
+        const index = this.carts.findIndex(cart => cart.id === id);
+        if (index !== -1) {
+            this.carts.splice(index, 1);
+            await this.saveCarts();
+            return true;
+        } else {
+            throw new Error("Cart not found");
+        }
+    }
+    async addProductToCart(cartId, productId) {
+        await this.loadCarts(); // Asegúrate de que los carritos estén cargados
+        const cart = this.carts.find(cart => cart.id === cartId);
+        if (!cart) {
+            throw new Error("Cart not found");
+        }
+
+        // Validar que el producto exista
+        // Aquí deberías hacer una validación real, dependiendo de tu implementación
+        if (!productId) {
+            throw new Error("Invalid product ID");
+        }
+
+        const existingProduct = cart.products.find(item => item.product === productId);
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            cart.products.push({ product: productId, quantity: 1 });
+        }
+
         await this.saveCarts();
-        return true;
-    } else {
-        throw new Error("Cart not found");
-    }
-}
-async addProductToCart(cartId, productId) {
-    await this.loadCarts(); // Asegúrate de que los carritos estén cargados
-    const cart = this.carts.find(cart => cart.id === cartId);
-    if (!cart) {
-        throw new Error("Cart not found");
+
+        return cart;
     }
 
-    // Validar que el producto exista
-    // Aquí deberías hacer una validación real, dependiendo de tu implementación
-    if (!productId) {
-        throw new Error("Invalid product ID");
+    async deleteCart(cartId) {
+        const index = this.carts.findIndex(cart => cart.id === cartId);
+        if (index !== -1) {
+            this.carts.splice(index, 1);
+            await this.saveCarts();
+            return true;
+        } else {
+            throw new Error("Cart not found");
+        }
+
     }
-
-    const existingProduct = cart.products.find(item => item.product === productId);
-    if (existingProduct) {
-        existingProduct.quantity += 1;
-    } else {
-        cart.products.push({ product: productId, quantity: 1 });
-    }
-
-    await this.saveCarts();
-
-    return cart;
-}
-
-async deleteCart(cartId) {
-    const index = this.carts.findIndex(cart => cart.id === cartId);
-    if (index !== -1) {
-        this.carts.splice(index, 1);
-        await this.saveCarts();
-        return true;
-    } else {
-        throw new Error("Cart not found");
-    }
-
-}
 }
 
 

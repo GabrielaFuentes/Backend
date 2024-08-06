@@ -2,8 +2,8 @@ import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 class ProductManager {
-    constructor(path) {
-        this.path = path;
+    constructor() {
+        this.path = "./src/data/productos.json";
         this.products = [];
         this.loadProducts();
     }
@@ -17,7 +17,7 @@ class ProductManager {
             this.products = [];
         }
     }
-    async addProduct({ title, description, code, price, status, stock, category, thumbnails  }) {
+    async addProduct({ title, description, code, price, status, stock, category, thumbnails }) {
         const id = uuidv4();
         let newProduct = { id, title, description, code, price, status, stock, category, thumbnails };
         this.products.push(newProduct);
@@ -37,44 +37,44 @@ class ProductManager {
     }
 
     async getProductById(id) {
-       await this.loadProducts();
+        await this.loadProducts();
         return this.products.find(product => product.id === id);
     }
 
 
-async deleteProduct(id) {
-  
-    const index = this.products.findIndex(product => product.id === id);
-    if (index !== -1) {
-        this.products.splice(index, 1);
-        try {
-            await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
-        } catch (error) {
-            console.error("Error writing file:", error);
-            throw error;
-        }
-        return true;
-    } else {
-        throw new Error("Product not found");
-    }
-}
+    async deleteProduct(id) {
 
-async updateProduct(id, { title, description, code, price, status, stock, category, thumbnails }) {
-
-    const index = this.products.findIndex(product => product.id === id);
-    if (index !== -1) {
-        this.products[index] = { id, title, description, price, thumbnails, code, stock, status, category };
-        try {
-            await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
-        } catch (error) {
-            console.error("Error writing file:", error);
-            throw error;
+        const index = this.products.findIndex(product => product.id === id);
+        if (index !== -1) {
+            this.products.splice(index, 1);
+            try {
+                await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
+            } catch (error) {
+                console.error("Error writing file:", error);
+                throw error;
+            }
+            return true;
+        } else {
+            throw new Error("Product not found");
         }
-        return this.products[index];
-    } else {
-        throw new Error("Product not found");
     }
-}
+
+    async updateProduct(id, { title, description, code, price, status, stock, category, thumbnails }) {
+
+        const index = this.products.findIndex(product => product.id === id);
+        if (index !== -1) {
+            this.products[index] = { id, title, description, price, thumbnails, code, stock, status, category };
+            try {
+                await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
+            } catch (error) {
+                console.error("Error writing file:", error);
+                throw error;
+            }
+            return this.products[index];
+        } else {
+            throw new Error("Product not found");
+        }
+    }
 }
 
 
