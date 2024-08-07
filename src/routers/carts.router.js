@@ -52,7 +52,5 @@ router.delete('/:cid', async (req, res) => {
     }
 });
 
-
-
 export default router;
 

@@ -1,11 +1,21 @@
 [
   {
-    "id": "574c3b09-922f-407c-a697-b371f69a4a22",
-    "title": "Producto 77",
+    "id": "d3c53d1a-44de-49b0-bb7b-665b2231b33f",
+    "title": "Producto 78",
     "description": "Descripción del producto 1",
     "code": "code1",
-    "price": 10000,
-    "stock": 80,
+    "price": 100,
+    "stock": 78,
     "category": "Electrónica"
+  },
+  {
+    "id": "62418aab-6533-4737-9fdd-4f1e673e3e04",
+    "title": "Producto 12",
+    "description": "descripcion de producto 12",
+    "code": "234",
+    "price": 12344,
+    "status": "nuevo",
+    "stock": 123,
+    "category": "TV"
   }
 ]

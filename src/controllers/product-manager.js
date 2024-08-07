@@ -17,6 +17,8 @@ class ProductManager {
             this.products = [];
         }
     }
+
+
     async addProduct({ title, description, code, price, status, stock, category, thumbnails }) {
         const id = uuidv4();
         let newProduct = { id, title, description, code, price, status, stock, category, thumbnails };

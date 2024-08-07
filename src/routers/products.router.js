@@ -4,8 +4,6 @@ import ProductManager from "../controllers/product-manager.js";
 const router = Router();
 const manager = new ProductManager("./src/data/productos.json");
 
-
-
 router.get("/", async (req, res) => {
     let limit = req.query.limit;
     try {
@@ -21,8 +19,6 @@ router.get("/", async (req, res) => {
     }
 })
 
-
-
 router.get("/:pid", async (req, res) => {
     let id = req.params.pid;
     try {
@@ -37,7 +33,6 @@ router.get("/:pid", async (req, res) => {
     }
 });
 
-
 router.post("/", async (req, res) => {
     const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
@@ -46,7 +41,7 @@ router.post("/", async (req, res) => {
     }
 
     try {
-        await manager.addProduct({ title, description, price, code, stock, category, thumbnails });
+        await manager.addProduct({ title, description, price, code, status, stock, category });
         res.status(201).send({ message: "Producto agregado exitosamente" });
     } catch (error) {
         res.status(500).send({ status: "error", message: error.message });
@@ -82,8 +77,6 @@ router.delete("/:pid", async (req, res) => {
     }
 
 })
-
-
 
 
 export default router;

@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Producto</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<style>
-    .container {
-        max-width: 600px;
-        margin-top: 20px;
-    }
-</style>
+    <style>
+        .container {
+            max-width: 600px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <h1>Agregar Productos</h1>
         <form id="addProductForm">
             <div class="form-group">
-                <label for="title">Nombre:</label>
+                <label for="title">Titulo:</label>
                 <input type="text" id="title" name="title" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="price">Precio:</label>
-                <input type="number" id="price" name="price" class="form-control" required>
+                <input type="number" id="price" name="price" class="form-control" step="0.01" required>
             </div>
             <div class="form-group">
                 <label for="description">Descripción:</label>
@@ -30,16 +32,27 @@
             </div>
             <div class="form-group">
                 <label for="category">Categoría:</label>
-                <input type="text" id="category" name="category" class="form-control">
+                <input type="text" id="category" name="category" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="stock">Stock:</label>
-                <input type="number" id="stock" name="stock" class="form-control">
+                <input type="number" id="stock" name="stock" class="form-control" required>
             </div>
+            <div class="form-group">
+                <label for="code">Código:</label>
+                <input type="text" id="code" name="code" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="status">Estado:</label>
+                <input type="text" id="status" name="status" class="form-control" required>
+            </div>
+
+
             <button type="submit" class="btn btn-primary">Agregar Producto</button>
         </form>
         <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/addProduct.js"></script> <!-- Ruta correcta para el JS -->
+        <script src="/js/addProduct.js"></script>
     </div>
 </body>
+
 </html>
