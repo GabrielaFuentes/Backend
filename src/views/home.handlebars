@@ -1,14 +1,36 @@
-<h1>Mis Productos</h1>
+<!-- views/index.handlebars -->
+<h1>Productos</h1>
 
-<div class="contenedorProductos">
-    {{#each productos}}
-    <div class="card">
-        <p> {{this.title}} </p>
-        <p> {{this.description}} </p>
-        <p> {{this.price}} </p>
-        <button> Comprar </button>
+<div class="products-list">
+    {{#each products}}
+    <div class="product">
+        <h2>{{this.title}}</h2>
+        <p>{{this.description}}</p>
+        <p>Precio: ${{this.price}}</p>
+        <p>Categoría: {{this.category}}</p>
+
+        <!-- Botón para ver más detalles -->
+        <a href="/products/{{this._id}}">Ver detalles</a>
+
+        <!-- Botón para agregar al carrito directamente -->
+        <form action="/carts/{{cartId}}/products/{{this._id}}" method="post">
+            <button type="submit">Agregar al carrito</button>
+        </form>
     </div>
     {{/each}}
+</div>
+
+<!-- Paginación -->
+<div class="pagination">
+    {{#if hasPrevPage}}
+    <a href="?page={{prevPage}}">Anterior</a>
+    {{/if}}
+
+    {{#if hasNextPage}}
+    <a href="?page={{nextPage}}">Siguiente</a>
+    {{/if}}
+</div>
+
 
     <script src="/socket.io/socket.io.js"></script>
 </div>
