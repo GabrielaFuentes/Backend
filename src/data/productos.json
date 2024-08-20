@@ -1,21 +1,250 @@
 [
-  {
-    "id": "d3c53d1a-44de-49b0-bb7b-665b2231b33f",
-    "title": "Producto 78",
-    "description": "Descripción del producto 1",
-    "code": "code1",
-    "price": 100,
-    "stock": 78,
-    "category": "Electrónica"
-  },
-  {
-    "id": "62418aab-6533-4737-9fdd-4f1e673e3e04",
-    "title": "Producto 12",
-    "description": "descripcion de producto 12",
-    "code": "234",
-    "price": 12344,
-    "status": "nuevo",
-    "stock": 123,
-    "category": "TV"
-  }
+    {
+        "title": "Laptop",
+        "description": "Laptop de alto rendimiento con procesador Intel i7 y 16GB de RAM.",
+        "code": "LAP12345",
+        "price": 1200,
+        "stock": 10,
+        "category": "Computadoras"
+    },
+    {
+        "title": "Smartphone",
+        "description": "Smartphone con pantalla AMOLED y cámara de 108MP.",
+        "code": "SM12345",
+        "price": 800,
+        "stock": 25,
+        "category": "Celulares"
+    },
+    {
+        "title": "Auriculares Bluetooth",
+        "description": "Auriculares inalámbricos con cancelación de ruido.",
+        "code": "AU12345",
+        "price": 150,
+        "stock": 50,
+        "category": "Accesorios"
+    },
+    {
+        "title": "Monitor 4K",
+        "description": "Monitor 4K UHD con pantalla de 27 pulgadas.",
+        "code": "MON12345",
+        "price": 350,
+        "stock": 15,
+        "category": "Monitores"
+    },
+    {
+        "title": "Mochila para Laptop",
+        "description": "Mochila resistente al agua con compartimiento para laptop de hasta 15.6 pulgadas.",
+        "code": "MOCH12345",
+        "price": 70,
+        "stock": 30,
+        "category": "Accesorios"
+    },
+    {
+        "title": "Tablet",
+        "description": "Tablet con pantalla de 10.5 pulgadas y 64GB de almacenamiento.",
+        "code": "TAB12345",
+        "price": 400,
+        "stock": 20,
+        "category": "Tablets"
+    },
+    {
+        "title": "Cámara Fotográfica",
+        "description": "Cámara DSLR con lente de 18-55mm.",
+        "code": "CAM12345",
+        "price": 700,
+        "stock": 12,
+        "category": "Cámaras"
+    },
+    {
+        "title": "Impresora Multifuncional",
+        "description": "Impresora con funciones de escaneo, copiado e impresión inalámbrica.",
+        "code": "IMP12345",
+        "price": 120,
+        "stock": 22,
+        "category": "Impresoras"
+    },
+    {
+        "title": "Disco Duro Externo",
+        "description": "Disco duro externo de 1TB con conectividad USB 3.0.",
+        "code": "HDD12345",
+        "price": 80,
+        "stock": 35,
+        "category": "Almacenamiento"
+    },
+    {
+        "title": "Router WiFi",
+        "description": "Router de doble banda con velocidad de hasta 1200 Mbps.",
+        "code": "ROUT12345",
+        "price": 60,
+        "stock": 40,
+        "category": "Redes"
+    },
+    {
+        "title": "Smartwatch",
+        "description": "Reloj inteligente con monitor de frecuencia cardíaca y GPS integrado.",
+        "code": "SWATCH12345",
+        "price": 200,
+        "stock": 28,
+        "category": "Wearables"
+    },
+    {
+        "title": "Teclado Mecánico",
+        "description": "Teclado mecánico RGB con switches Cherry MX Red.",
+        "code": "KEY12345",
+        "price": 100,
+        "stock": 50,
+        "category": "Periféricos"
+    },
+    {
+        "title": "Mouse Gaming",
+        "description": "Mouse ergonómico para gaming con 16,000 DPI.",
+        "code": "MOUSE12345",
+        "price": 50,
+        "stock": 45,
+        "category": "Periféricos"
+    },
+    {
+        "title": "Smart TV 55\"",
+        "description": "Televisor inteligente 4K UHD de 55 pulgadas con HDR.",
+        "code": "TV12345",
+        "price": 600,
+        "stock": 18,
+        "category": "Televisores"
+    },
+    {
+        "title": "Parlante Bluetooth",
+        "description": "Parlante portátil con conectividad Bluetooth y 12 horas de batería.",
+        "code": "SPEAK12345",
+        "price": 80,
+        "stock": 35,
+        "category": "Audio"
+    },
+    {
+        "title": "Cargador Inalámbrico",
+        "description": "Cargador inalámbrico rápido compatible con dispositivos Qi.",
+        "code": "CHARGE12345",
+        "price": 30,
+        "stock": 60,
+        "category": "Accesorios"
+    },
+    {
+        "title": "Cámara de Seguridad",
+        "description": "Cámara de seguridad con visión nocturna y detección de movimiento.",
+        "code": "SEC12345",
+        "price": 150,
+        "stock": 25,
+        "category": "Seguridad"
+    },
+    {
+        "title": "Consola de Videojuegos",
+        "description": "Consola de videojuegos de última generación con 1TB de almacenamiento.",
+        "code": "CONSOLE12345",
+        "price": 500,
+        "stock": 15,
+        "category": "Videojuegos"
+    },
+    {
+        "title": "Tarjeta Gráfica",
+        "description": "Tarjeta gráfica de alto rendimiento con 8GB de VRAM.",
+        "code": "GPU12345",
+        "price": 400,
+        "stock": 20,
+        "category": "Componentes"
+    },
+    {
+        "title": "Memoria RAM 16GB",
+        "description": "Kit de 16GB (2x8GB) de memoria RAM DDR4.",
+        "code": "RAM12345",
+        "price": 90,
+        "stock": 55,
+        "category": "Componentes"
+    },
+    {
+        "title": "Unidad SSD 500GB",
+        "description": "Unidad SSD de 500GB con interfaz NVMe.",
+        "code": "SSD12345",
+        "price": 100,
+        "stock": 38,
+        "category": "Almacenamiento"
+    },
+    {
+        "title": "Proyector",
+        "description": "Proyector Full HD con 3000 lúmenes de brillo.",
+        "code": "PROJ12345",
+        "price": 250,
+        "stock": 20,
+        "category": "Proyectores"
+    },
+    {
+        "title": "Microondas Digital",
+        "description": "Microondas digital con capacidad de 20 litros y 700W.",
+        "code": "MICRO12345",
+        "price": 100,
+        "stock": 40,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Aire Acondicionado",
+        "description": "Aire acondicionado split de 12000 BTU con modo inverter.",
+        "code": "AC12345",
+        "price": 500,
+        "stock": 10,
+        "category": "Climatización"
+    },
+    {
+        "title": "Refrigerador",
+        "description": "Refrigerador de dos puertas con capacidad de 400 litros.",
+        "code": "FRIDGE12345",
+        "price": 800,
+        "stock": 8,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Licuadora",
+        "description": "Licuadora de alta potencia con 10 velocidades.",
+        "code": "BLENDER12345",
+        "price": 60,
+        "stock": 25,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Plancha a Vapor",
+        "description": "Plancha a vapor con base de cerámica y control de temperatura.",
+        "code": "IRON12345",
+        "price": 40,
+        "stock": 30,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Ventilador de Pie",
+        "description": "Ventilador de pie con 3 velocidades y oscilación ajustable.",
+        "code": "FAN12345",
+        "price": 50,
+        "stock": 35,
+        "category": "Climatización"
+    },
+    {
+        "title": "Cafetera",
+        "description": "Cafetera eléctrica con capacidad de 12 tazas.",
+        "code": "COFFEE12345",
+        "price": 70,
+        "stock": 40,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Horno Eléctrico",
+        "description": "Horno eléctrico de convección con capacidad de 45 litros.",
+        "code": "OVEN12345",
+        "price": 120,
+        "stock": 20,
+        "category": "Electrodomésticos"
+    },
+    {
+        "title": "Parrilla Eléctrica",
+        "description": "Parrilla eléctrica con superficie antiadherente y control de temperatura.",
+        "code": "GRILL12345",
+        "price": 90,
+        "stock": 25,   
+        "category": "Electrodomésticos"
+    }
 ]
