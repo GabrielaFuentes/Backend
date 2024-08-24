@@ -1,9 +1,7 @@
 import { Router } from "express";
-import ProductManager from "../controllers/product-manager.js";
-import ProductsModel from "../models/products.model.js";
+import ProductsModel from "../dao/models/products.model.js";
 
 const router = Router();
-const manager = new ProductManager("./src/data/productos.json");
 
 
 router.get("/", async (req, res) => {
