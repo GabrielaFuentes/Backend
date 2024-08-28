@@ -1,14 +1,14 @@
 import express from "express";
-import ProductManager from "./controllers/product-manager.js";
+import ProductManager from "./dao/db/product-manager-db.js";
 import productsRouter from "./routers/products.router.js";
-import CartsManager from "./controllers/carts-manager.js";
+import CartsManager from "./dao/db/carts-manager-db.js";
 import cartsRouter from "./routers/carts.router.js";
 import exphbs from 'express-handlebars';
 import viewsRouter from "./routers/views.router.js";
 import { Server } from "socket.io";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import mongoose from 'mongoose';
+import "./database.js"
 
 const PORT = 8080;
 const app = express();
@@ -49,7 +49,3 @@ io.on("connection", async (socket) => {
     });
 });
 
-//Nos conectamos con MongoDB Atlas
-mongoose.connect("mongodb+srv://gabrielafuentes21:hola7175@cluster0.cxrrp.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0")
-    .then(() => console.log("funciona"))
-    .catch(() => console.log("NO funciona"))
