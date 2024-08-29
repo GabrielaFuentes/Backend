@@ -1,36 +1,58 @@
-<!-- views/index.handlebars -->
-<h1>Productos</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <!-- Enlace a Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div>
+    <div class="container mt-4">
+        <h1 class="mb-4">Productos</h1>
 
-<div class="products-list">
-    {{#each products}}
-    <div class="product">
-        <h2>{{this.title}}</h2>
-        <p>{{this.description}}</p>
-        <p>Precio: ${{this.price}}</p>
-        <p>Categoría: {{this.category}}</p>
+        <div d="contenedorProductos" class="row ">
+            {{#each products}}
+            <div class="col-md-4 mb-4">
+                <div class="card ">
+                    <div class="card-body">
+                        <h5 class="card-title">{{title}}</h5>
+                        <p class="card-text">{{this.description}}</p>
+                        <p><strong>Precio:</strong> ${{this.price}}</p>
+                        <p><strong>Categoría:</strong> {{this.category}}</p>
+                        <a href="/products/{{this._id}}" class="btn btn-info mb-2">Ver detalles</a>
+                        <form action="/carts/{{cartId}}/products/{{this._id}}" method="post">
+                            <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        </div>
 
-        <!-- Botón para ver más detalles -->
-        <a href="/products/{{this._id}}">Ver detalles</a>
-
-        <!-- Botón para agregar al carrito directamente -->
-        <form action="/carts/{{cartId}}/products/{{this._id}}" method="post">
-            <button type="submit">Agregar al carrito</button>
-        </form>
+        <!-- Paginación -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {{#if prevPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="/api/products?page={{prevPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">⬅️ Página anterior</a>
+                    </li>
+                {{/if}}
+                {{#if nextPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="/api/products?page={{nextPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">Página siguiente ➡️</a>
+                    </li>
+                {{/if}}
+            </ul>
+        </nav>
     </div>
-    {{/each}}
-</div>
 
-<!-- Paginación -->
-<div class="pagination">
-    {{#if hasPrevPage}}
-    <a href="?page={{prevPage}}">Anterior</a>
-    {{/if}}
-
-    {{#if hasNextPage}}
-    <a href="?page={{nextPage}}">Siguiente</a>
-    {{/if}}
-</div>
-
-
-    <script src="/socket.io/socket.io.js"></script>
-</div>
+    <!-- Enlace a Bootstrap JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+     <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

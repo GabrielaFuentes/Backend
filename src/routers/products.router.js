@@ -1,23 +1,72 @@
 import { Router } from "express";
 import ProductsModel from "../dao/models/products.model.js";
 
+import mongoose from 'mongoose';
+import ProductManager from "../dao/db/product-manager-db.js";
+
 const router = Router();
+const manager = new ProductManager();
+
+
+router.get("/products/:pid", async (req, res) => {
+    const id = req.params.pid;
+    try {
+        const producto = await manager.getProductById(id);
+        if (!producto) {
+            res.status(404).send("Producto no encontrado");
+        } else {
+            res.json(producto);
+        }
+    } catch (error) {
+        res.status(500).send('Error al obtener producto por ID: ' + error.message);
+    }
+});
+
+
 
 
 router.get("/", async (req, res) => {
-    let limit = req.query.limit;
-    try {
-        const arrayProductos = ProductsModel.find()
+    const { limit = 30, page = 1, sort = null, query = '{}' } = req.query;
 
-        if (limit) {
-            res.json(arrayProductos.slice(0, limit));
-        } else {
-            res.json(arrayProductos);
-        }
+    const limitNumber = parseInt(limit);
+    const pageNumber = parseInt(page);
+    const skip = (pageNumber - 1) * limitNumber;
+    let sortOrder = null;
+
+    // Convertir el parámetro de query a un objeto
+    let filter = {};
+    try {
+        filter = JSON.parse(query);
     } catch (error) {
-        res.status(500).send("Error interno del servidor");
+        return res.status(400).json({ error: "El parámetro 'query' no es válido JSON" });
     }
-})
+
+    // Establecer el orden de clasificación basado en el parámetro de consulta
+    if (sort === 'asc' || sort === 'desc') {
+        sortOrder = { price: sort === 'asc' ? 1 : -1 };
+    }
+
+    try {
+        const productos = await manager.getProducts({
+            limit: limitNumber,
+            skip: skip,
+            sortOrder: sortOrder,
+            filter: filter
+        });
+
+        const totalProducts = await manager.countProducts(filter);
+        const totalPages = Math.ceil(totalProducts / limitNumber);
+
+        res.json({
+            productos,
+            totalPages,
+            currentPage: pageNumber,
+            limit: limitNumber
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener productos", details: error.message });
+    }
+});
 
 router.get("/:pid", async (req, res) => {
     let id = req.params.pid;
@@ -53,7 +102,6 @@ router.post("/", async (req, res) => {
 
 
 router.put("/:pid", async (req, res) => {
-
     const { title, description, price, code, stock, category, thumbnails } = req.body;
 
     if (!title || !description || !price || !code || !stock || !category) {
@@ -61,30 +109,43 @@ router.put("/:pid", async (req, res) => {
     }
 
     try {
-        const product = await ProductsModel.findByIdAndUpdate(req.params.pid, req.body);
-        if (!product) {
-            res.status(404).send({ message: "Producto no encontrado" });
+        const updatedProduct = await ProductsModel.findByIdAndUpdate(req.params.pid, req.body, { new: true });
+
+        if (!updatedProduct) {
+            // Aquí solo enviamos una respuesta y retornamos para evitar múltiples respuestas
+            return res.status(404).send({ message: "Producto no encontrado" });
         }
-        res.status(200).send({ message: "Producto actualizado exitosamente" });
+
+        res.status(200).send({ message: "Producto actualizado exitosamente", product: updatedProduct });
     } catch (error) {
+        console.error("Error al actualizar producto", error);
         res.status(500).send({ status: "error", message: error.message });
     }
 });
 
 
+
 router.delete("/:pid", async (req, res) => {
-    let id = req.params.pid;
+    const id = req.params.pid;
+
     try {
+        // Verificamos si el ID es válido
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "ID inválido" });
+        }
+
         const product = await ProductsModel.findByIdAndDelete(id);
         if (!product) {
-            res.status(404).send({ message: "Producto no encontrado" });
+            return res.status(404).send({ message: "Producto no encontrado" });
         }
-        res.status(200).send("Producto eliminado");
-    } catch (error) {
-        res.status(500).send("Error interno del servidor");
-    }
 
-})
+        res.status(200).send({ message: "Producto eliminado exitosamente" });
+    } catch (error) {
+        console.error("Error al eliminar producto", error);
+        res.status(500).send({ message: "Error interno del servidor" });
+    }
+});
+
 
 
 export default router;

@@ -33,16 +33,29 @@ class ProductManager {
             throw error;
         }
     }
-
-    async getProducts() {
+    async getProducts({ limit = 10, skip = 0, sortOrder = null, filter = {} } = {}) {
         try {
-            const arrayProducts = await ProductsModel.find();
+            // Configurar la consulta
+            let query = ProductsModel.find(filter);
+
+            // Aplicar ordenación si se especifica
+            if (sortOrder) {
+                const sort = sortOrder === 'asc' ? 1 : -1;
+                query = query.sort({ price: sort }); // Ordenar por precio como ejemplo, puedes cambiar el campo
+            }
+
+            // Aplicar paginación
+            query = query.skip(skip).limit(limit);
+
+            // Ejecutar la consulta
+            const arrayProducts = await query.exec();
             return arrayProducts;
         } catch (error) {
             console.error("Error al obtener productos", error);
             throw error;
         }
     }
+
 
     async getProductById(id) {
         try {
@@ -93,7 +106,17 @@ class ProductManager {
             throw error;
         }
     }
+    // Contar productos
+    countProducts = async (filter = {}) => {
+        try {
+            const count = await ProductsModel.countDocuments(filter).exec();
+            return count;
+        } catch (error) {
+            throw new Error('Error al contar productos: ' + error.message);
+        }
+    }
 }
+
 
 
 

@@ -18,7 +18,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Express handlebars
-app.engine("handlebars", exphbs.engine());
+app.engine("handlebars", exphbs.engine({
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+    }
+}));
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
@@ -48,4 +52,3 @@ io.on("connection", async (socket) => {
         io.emit("productos", await productManager.getProducts());
     });
 });
-
