@@ -8,28 +8,32 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div>
+    {{#if username}}
+    <div class="welcome-message">
+        Bienvenido, {{username}}!
+    </div>
+    {{/if}}
+    
     <div class="container mt-4">
         <h1 class="mb-4">Productos</h1>
 
-        <div d="contenedorProductos" class="row ">
+        <div id="contenedorProductos" class="row">
             {{#each products}}
             <div class="col-md-4 mb-4">
-                <div class="card ">
+                <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">{{title}}</h5>
-                        <p class="card-text">{{this.description}}</p>
-                        <p><strong>Precio:</strong> ${{this.price}}</p>
-                        <p><strong>Categoría:</strong> {{this.category}}</p>
-                        <a href="/products/{{this._id}}" class="btn btn-info mb-2">Ver detalles</a>
-                        <form action="/carts/{{cartId}}/products/{{this._id}}" method="post">
+                        <p class="card-text">{{description}}</p>
+                        <p><strong>Precio:</strong> ${{price}}</p>
+                        <p><strong>Categoría:</strong> {{category}}</p>
+                        <a href="/products/{{_id}}" class="btn btn-info mb-2">Ver detalles</a>
+                        <form action="/carts/{{cartId}}/products/{{_id}}" method="post">
                             <button type="submit" class="btn btn-primary">Agregar al carrito</button>
                         </form>
                     </div>
                 </div>
             </div>
             {{/each}}
-        </div>
         </div>
 
         <!-- Paginación -->
@@ -53,6 +57,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-     <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>

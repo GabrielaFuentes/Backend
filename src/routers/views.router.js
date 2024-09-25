@@ -4,6 +4,7 @@ import ProductsManager from "../dao/db/product-manager-db.js";
 const manager = new ProductsManager();
 import CartsManager from "../dao/db/carts-manager-db.js";
 const cartsManager = new CartsManager();
+import jwt from "jsonwebtoken";
 
 router.get("/products", async (req, res) => {
     try {
@@ -11,11 +12,14 @@ router.get("/products", async (req, res) => {
         const limit = parseInt(req.query.limit) || 9; // Número de productos por página
         const page = parseInt(req.query.page) || 1; // Página actual
         const skip = (page - 1) * limit; // Número de productos a omitir
-        const sortOrder = req.query.sortOrder || asc; // Orden de los productos
+        const sortOrder = req.query.sortOrder || null; // Orden de los productos
         const filter = req.query.filter || {}; // Filtros aplicados
 
+        const username = req.session.username; // Obtén el nombre del usuario
+        req.session.username = null; // Limpia la sesión para no mostrar el mensaje de nuevo
+
         // Obtener los productos con paginación
-        const products = await manager.getProducts({
+        const productos = await manager.getProducts({
             limit,
             skip,
             sortOrder,
@@ -32,7 +36,8 @@ router.get("/products", async (req, res) => {
 
         // Renderizar la vista con los datos necesarios
         res.render("home", {
-            products,
+            username,
+            productos,
             prevPage,
             nextPage,
             sort: sortOrder,
@@ -62,7 +67,7 @@ router.get("/products/:pid", async (req, res) => {
 router.get("/carts/:cid", async (req, res) => {
     const { cid } = req.params;
     try {
-        const cart = await cartsManager.getCartById(cid);
+        const cart = await cartManager.getCartById(cid);
         res.render("cartDetails", { cart, cid });
     } catch (error) {
         res.status(500).send("Error al obtener el carrito");
@@ -75,6 +80,14 @@ router.get("/realtimeproducts", (req, res) => {
 
 router.get('/products/add', (req, res) => {
     res.render('addProduct');
+});
+
+router.get('/login', (req, res) => {
+    res.render('login');
+});
+
+router.get('/register', (req, res) => {
+    res.render('register');
 });
 
 export default router

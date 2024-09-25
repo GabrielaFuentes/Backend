@@ -19,6 +19,7 @@ router.get("/products/:pid", async (req, res) => {
         }
     } catch (error) {
         res.status(500).send('Error al obtener producto por ID: ' + error.message);
+        console.log("products.router.js");
     }
 });
 
