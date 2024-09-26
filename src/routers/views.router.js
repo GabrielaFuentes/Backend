@@ -23,7 +23,8 @@ router.get("/products", async (req, res) => {
             limit,
             skip,
             sortOrder,
-            filter
+            filter,
+            page
         });
 
         // Contar el total de productos para calcular el número total de páginas

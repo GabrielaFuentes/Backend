@@ -6,33 +6,53 @@
     <title>Productos</title>
     <!-- Enlace a Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Enlace a Font Awesome para íconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Mi Tienda</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/productos">Productos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/carrito">
+                        <i class="fas fa-shopping-cart"></i> 
+                        Carrito 
+                        <span id="cart-count" class="badge badge-pill badge-danger">0</span>
+                    </a>
+                </li>
+                {{#if username}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Cerrar sesión ({{username}})</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Mensaje de bienvenida -->
     {{#if username}}
-    <div class="welcome-message">
+    <div class="welcome-message text-center mt-3">
         Bienvenido, {{username}}!
     </div>
     {{/if}}
     
+    <!-- Contenedor de productos -->
     <div class="container mt-4">
         <h1 class="mb-4">Productos</h1>
-
         <div id="contenedorProductos" class="row">
             {{#each products}}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{title}}</h5>
-                        <p class="card-text">{{description}}</p>
-                        <p><strong>Precio:</strong> ${{price}}</p>
-                        <p><strong>Categoría:</strong> {{category}}</p>
-                        <a href="/products/{{_id}}" class="btn btn-info mb-2">Ver detalles</a>
-                        <form action="/carts/{{cartId}}/products/{{_id}}" method="post">
-                            <button type="submit" class="btn btn-primary">Agregar al carrito</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                <!-- Aquí va la lógica para mostrar los productos -->
             {{/each}}
         </div>
 
@@ -41,12 +61,12 @@
             <ul class="pagination">
                 {{#if prevPage}}
                     <li class="page-item">
-                        <a class="page-link" href="/api/products?page={{prevPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">⬅️ Página anterior</a>
+                        <a class="page-link" href="/products?page={{prevPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">⬅️ Página anterior</a>
                     </li>
                 {{/if}}
                 {{#if nextPage}}
                     <li class="page-item">
-                        <a class="page-link" href="/api/products?page={{nextPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">Página siguiente ➡️</a>
+                        <a class="page-link" href="/products?page={{nextPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">Página siguiente ➡️</a>
                     </li>
                 {{/if}}
             </ul>

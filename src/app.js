@@ -81,10 +81,33 @@ const io = new Server(httpServer);
 io.on("connection", async (socket) => {
     console.log("Un cliente se conectó");
 
-    socket.emit("productos", await productManager.getProducts());
+    // Emitir la lista de productos cuando el cliente se conecta
+    const productos = await productManager.getProducts();
+    socket.emit("productos", productos);
 
-    socket.on("eliminarProducto", async (id) => {
-        await productManager.deleteProduct(id);
-        io.emit("productos", await productManager.getProducts());
+    // Crear un carrito temporal para el cliente
+    let carrito = [];
+
+    // Escuchar cuando un cliente quiera agregar un producto al carrito
+    socket.on('agregarAlCarrito', async (id) => {
+        const productosActualizados = await productManager.getProducts(); // Actualizar la lista de productos
+        const producto = productosActualizados.find(p => p._id === id); // Buscar el producto
+        if (producto) {
+            carrito.push(producto);
+            console.log(`Producto agregado al carrito: ${producto.title}`);
+        }
+
+        // Emitir carrito actualizado
+        io.emit('carritoActualizado', carrito);
+    });
+
+    // Escuchar cuando un cliente quiera eliminar un producto del carrito
+    socket.on('eliminarProducto', (id) => {
+        carrito = carrito.filter(p => p._id !== id);
+        console.log(`Producto eliminado del carrito con id: ${id}`);
+
+        // Emitir carrito actualizado
+        io.emit('carritoActualizado', carrito);
     });
 });
+
