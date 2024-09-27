@@ -19,7 +19,7 @@ class CartManager {
             throw new Error("Cart ID is required");
         }
         try {
-            const cart = await CartsModel.findById(id);
+            const cart = await CartsModel.findById(id).populate('products.productId');
             if (!cart) {
                 throw new Error("Cart not found");
             }
@@ -36,11 +36,11 @@ class CartManager {
         }
         try {
             const cart = await this.getCartById(cartId);
-            const existingProduct = cart.products.find(item => item.product.toString() === productId);
+            const existingProduct = cart.products.find(item => item.productId.toString() === productId);
             if (existingProduct) {
                 existingProduct.quantity += quantity;
             } else {
-                cart.products.push({ product: productId, quantity });
+                cart.products.push({ productId, quantity });
             }
             await cart.save();
             return cart;

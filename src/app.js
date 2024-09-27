@@ -109,5 +109,16 @@ io.on("connection", async (socket) => {
         // Emitir carrito actualizado
         io.emit('carritoActualizado', carrito);
     });
+    app.engine("handlebars", exphbs.engine({
+        runtimeOptions: {
+            allowProtoPropertiesByDefault: true,
+        },
+        helpers: {
+            multiply: (a, b) => a * b,
+            calculateTotal: (carrito) => {
+                return carrito.reduce((total, item) => total + item.price * item.quantity, 0);
+            }
+        }
+    }));
 });
 

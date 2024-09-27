@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 
 router.get("/products", async (req, res) => {
     try {
+
         // Obtener parámetros de consulta, proporcionando valores predeterminados si no se especifican
         const limit = parseInt(req.query.limit) || 9; // Número de productos por página
         const page = parseInt(req.query.page) || 1; // Página actual
@@ -68,12 +69,36 @@ router.get("/products/:pid", async (req, res) => {
 router.get("/carts/:cid", async (req, res) => {
     const { cid } = req.params;
     try {
-        const cart = await cartManager.getCartById(cid);
+        const cart = await cartsManager.getCartById(cid);
         res.render("cartDetails", { cart, cid });
     } catch (error) {
         res.status(500).send("Error al obtener el carrito");
     }
 });
+
+router.get("/carrito", async (req, res) => {
+    try {
+
+        let cartId = req.session.cartId || req.query.cartId; // Asegúrate de obtener el ID del carrito
+        console.log(cartId);
+        if (!cartId) {
+            const newCart = await cartsManager.addCart(); // Crear un nuevo carrito
+            req.session.cartId = newCart._id; // Guardar el nuevo ID en la sesión
+            cartId = newCart._id;
+        }
+
+        const carrito = await cartsManager.getCartById(cartId);
+
+        if (!carrito || carrito.length === 0) {
+            return res.status(404).send("El carrito está vacío");
+        }
+
+        res.render("carrito", { carrito }); // Renderiza la vista del carrito con los productos
+    } catch (error) {
+        res.status(500).send("Error al cargar el carrito: " + error.message);
+    }
+});
+
 
 router.get("/realtimeproducts", (req, res) => {
     res.render("realtimeproducts");
