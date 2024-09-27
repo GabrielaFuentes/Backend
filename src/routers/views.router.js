@@ -100,6 +100,20 @@ router.get("/carrito", async (req, res) => {
 });
 
 
+// Ruta de logout
+router.get('/logout', (req, res) => {
+    const username = req.session.username // Guardamos el nombre de usuario antes de destruir la sesión
+    console.log(username)
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('No se pudo cerrar sesión');
+        }
+        // Redirigir a la página de despedida con el nombre del usuario
+        res.render('logout')
+    });
+});
+
+
 router.get("/realtimeproducts", (req, res) => {
     res.render("realtimeproducts");
 });
