@@ -1,125 +1,137 @@
-import ProductsModel from "../models/products.model.js";
+import ProductModel from "../models/products.model.js";
 
 class ProductManager {
-    async addProduct({ title, description, code, price, status, stock, category, thumbnails }) {
+    // Agregar un nuevo producto
+    async addProduct({ title, description, price, img, code, stock, category, thumbnails }) {
         try {
-            if (!title || !description || !price || !status || !code || !stock || !category) {
+            // Validar que todos los campos requeridos estén presentes
+            if (!title || !description || !price || !code || !stock || !category) {
                 console.log("Todos los campos son obligatorios");
                 return;
             }
 
-            const codeExists = await ProductsModel.findOne({ code: code });
-            if (codeExists) {
-                console.log("El código debe ser único");
+            // Verificar si el código del producto ya existe
+            const existeProducto = await ProductModel.findOne({ code: code });
+            if (existeProducto) {
+                console.log("El código debe ser único, ¡malditooo!");
                 return;
             }
 
-            const newProduct = new ProductsModel({
+            // Crear el nuevo producto
+            const newProduct = new ProductModel({
                 title,
                 description,
-                code,
                 price,
-                status,
+                img,
+                code,
                 stock,
                 category,
-                thumbnails
+                status: true,
+                thumbnails: thumbnails || []
             });
 
+            // Guardar el producto en la base de datos
             await newProduct.save();
             console.log("Producto agregado exitosamente");
 
         } catch (error) {
-            console.error("Error al agregar producto", error);
+            console.log("Error al agregar producto", error);
             throw error;
         }
     }
-    async getProducts({ limit = 10, skip = 0, sortOrder = null, filter = {} } = {}) {
-        try {
-            // Configurar la consulta
-            let query = ProductsModel.find(filter);
 
-            // Aplicar ordenación si se especifica
-            if (sortOrder) {
-                const sort = sortOrder === 'asc' ? 1 : -1;
-                query = query.sort({ price: sort }); // Ordenar por precio como ejemplo, puedes cambiar el campo
+    // Obtener productos con paginación y filtros
+    async getProducts({ limit = 10, page = 1, sort, query } = {}) {
+        try {
+            const skip = (page - 1) * limit;
+            let queryOptions = {};
+
+            // Aplicar filtro de categoría
+            if (query) {
+                queryOptions = { category: query };
             }
 
-            // Aplicar paginación
-            query = query.skip(skip).limit(limit);
+            // Configurar opciones de ordenación
+            const sortOptions = {};
+            if (sort) {
+                sortOptions.price = sort === 'asc' ? 1 : -1;
+            }
 
-            // Ejecutar la consulta
-            const arrayProducts = await query.exec();
-            return arrayProducts;
+            // Consultar productos con paginación y orden
+            const productos = await ProductModel
+                .find(queryOptions)
+                .sort(sortOptions)
+                .skip(skip)
+                .limit(limit);
+
+            const totalProducts = await ProductModel.countDocuments(queryOptions);
+            const totalPages = Math.ceil(totalProducts / limit);
+            const hasPrevPage = page > 1;
+            const hasNextPage = page < totalPages;
+
+            return {
+                docs: productos,
+                totalPages,
+                prevPage: hasPrevPage ? page - 1 : null,
+                nextPage: hasNextPage ? page + 1 : null,
+                page,
+                hasPrevPage,
+                hasNextPage,
+                prevLink: hasPrevPage ? `/api/products?limit=${limit}&page=${page - 1}&sort=${sort}&query=${query}` : null,
+                nextLink: hasNextPage ? `/api/products?limit=${limit}&page=${page + 1}&sort=${sort}&query=${query}` : null,
+            };
         } catch (error) {
-            console.error("Error al obtener productos", error);
+            console.log("Error al obtener los productos", error);
             throw error;
         }
     }
 
-
+    // Obtener producto por ID
     async getProductById(id) {
         try {
-            const searchProduct = await ProductsModel.findById(id);
-            if (!searchProduct) {
+            const producto = await ProductModel.findById(id);
+            if (!producto) {
                 console.log("Producto no encontrado");
                 return null;
             }
-            console.log("Producto encontrado");
-            return searchProduct;
+            console.log("Producto encontrado!! Claro que siiiiii");
+            return producto;
         } catch (error) {
-            console.error("Error al obtener producto", error);
+            console.log("Error al traer un producto por ID", error);
             throw error;
         }
     }
 
+    // Actualizar un producto
+    async updateProduct(id, productoActualizado) {
+        try {
+            const updateado = await ProductModel.findByIdAndUpdate(id, productoActualizado, { new: true });
+            if (!updateado) {
+                console.log("No se encuentra el producto");
+                return null;
+            }
+            console.log("Producto actualizado con éxito, ¡como todo en mi vida!");
+            return updateado;
+        } catch (error) {
+            console.log("Error al actualizar el producto", error);
+            throw error;
+        }
+    }
+
+    // Eliminar un producto
     async deleteProduct(id) {
         try {
-            const result = await ProductsModel.findByIdAndDelete(id);
-            if (!result) {
+            const deleteado = await ProductModel.findByIdAndDelete(id);
+            if (!deleteado) {
                 console.log("Producto no encontrado");
                 return null;
             }
-            console.log("Producto eliminado exitosamente");
-            return result;
+            console.log("Producto eliminado correctamente");
         } catch (error) {
-            console.error("Error al eliminar producto", error);
+            console.log("Error al eliminar el producto", error);
             throw error;
-        }
-    }
-
-    async updateProduct(id, { title, description, code, price, status, stock, category, thumbnails }) {
-        try {
-            const updateData = { title, description, code, price, status, stock, category, thumbnails };
-
-            // Filtramos las propiedades no definidas para evitar la actualización con valores `undefined`
-            Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
-
-            const updatedProduct = await ProductsModel.findByIdAndUpdate(id, updateData, { new: true });
-            if (!updatedProduct) {
-                console.log("Producto no encontrado");
-                return null;
-            }
-            console.log("Producto actualizado exitosamente");
-            return updatedProduct;
-        } catch (error) {
-            console.error("Error al actualizar producto", error);
-            throw error;
-        }
-    }
-    // Contar productos
-    countProducts = async (filter = {}) => {
-        try {
-            const count = await ProductsModel.countDocuments(filter).exec();
-            return count;
-        } catch (error) {
-            throw new Error('Error al contar productos: ' + error.message);
         }
     }
 }
-
-
-
-
-
 
 export default ProductManager;

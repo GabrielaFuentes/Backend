@@ -14,12 +14,12 @@ class CartManager {
             throw new Error("Could not save cart");
         }
     }
-    async getCartById(id) {
-        if (!id) {
+    async getCartById(cartId) {
+        if (!cartId) {
             throw new Error("Cart ID is required");
         }
         try {
-            const cart = await CartsModel.findById(id).populate('products.productId');
+            const cart = await CartsModel.findById(cartId).populate('products.productId');
             if (!cart) {
                 throw new Error("Cart not found");
             }
@@ -40,8 +40,12 @@ class CartManager {
             if (existingProduct) {
                 existingProduct.quantity += quantity;
             } else {
-                cart.products.push({ productId, quantity });
+                cart.products.push({ product: productId, quantity });
             }
+
+            cart.markModified("products");
+
+
             await cart.save();
             return cart;
         } catch (error) {
@@ -51,20 +55,92 @@ class CartManager {
     }
 
     async deleteCart(cartId) {
-        if (!cartId) {
-            throw new Error("Cart ID is required");
-        }
         try {
-            const cart = await CartsModel.findByIdAndDelete(cartId);
-            if (!cart) {
-                throw new Error("Cart not found");
+            const deletedCart = await CartModel.findByIdAndDelete(cartId);
+            if (!deletedCart) {
+                console.log("No cart found with the provided ID");
+                return null;
             }
-            return true;
+            console.log("Cart deleted successfully");
+            return deletedCart;
         } catch (error) {
-            console.error("Error deleting cart:", error);
-            throw new Error("Error deleting cart");
+            console.log("Error deleting the cart", error);
+            throw error;
         }
     }
+
+    async removeProductFromCart(cartId, productId) {
+        try {
+            // Find the cart and update by removing the specific product
+            const updatedCart = await CartModel.findByIdAndUpdate(cartId, { $pull: { products: { product: productId } } }, { new: true });
+
+            if (!updatedCart) {
+                console.log("No cart found with the ID or the product was not found in the cart");
+                return null;
+            }
+
+            console.log("Product removed from cart:", updatedCart);
+            return updatedCart;
+        } catch (error) {
+            console.log("Error removing product from cart", error);
+            throw error;
+        }
+    }
+
+    async updateCart(cartId, products) {
+        try {
+            const cart = await CartModel.findById(cartId);
+            if (!cart) {
+                console.log("No cart found with the ID");
+                return null;
+            }
+
+            cart.products = products;
+
+            // Mark the "products" property as modified before saving
+            cart.markModified("products");
+
+            await cart.save();
+            console.log("Cart updated successfully:", cart);
+            return cart;
+        } catch (error) {
+            console.log("Error updating the cart", error);
+            throw error;
+        }
+    }
+
+    async updateProductQuantity(cartId, productId, quantity) {
+        try {
+            const cart = await CartModel.findById(cartId);
+            if (!cart) {
+                console.log("No cart found with the ID");
+                return null;
+            }
+
+            const productToUpdate = cart.products.find((item) => item.product._id.toString() === productId);
+            console.log(
+                "Product in cart: ",
+                cart.products.find((item) => item.product.toString())
+            );
+            if (!productToUpdate) {
+                console.log("Product not found in the cart");
+                return null;
+            }
+
+            productToUpdate.quantity = quantity;
+
+            // Mark the "products" property as modified before saving
+            cart.markModified("products");
+
+            await cart.save();
+            console.log("Product quantity updated successfully:", cart);
+            return cart;
+        } catch (error) {
+            console.log("Error updating product quantity", error);
+            throw error;
+        }
+    }
+
 }
 
 export default CartManager;

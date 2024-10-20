@@ -1,61 +1,80 @@
 import express from "express";
+import passport from "passport";
+import ProductManager from "../dao/db/product-manager-db.js";
+import CartManager from "../dao/db/carts-manager-db.js";
+import { onlyAdmin, onlyUser } from "../middleware/auth.js";
+
 const router = express.Router();
-import ProductsManager from "../dao/db/product-manager-db.js";
-const manager = new ProductsManager();
-import CartsManager from "../dao/db/carts-manager-db.js";
-const cartsManager = new CartsManager();
-import jwt from "jsonwebtoken";
+const productManager = new ProductManager();
+const cartManager = new CartManager();
 
-router.get("/products", async (req, res) => {
+// Ruta para el formulario de login:
+router.get("/login", (req, res) => {
+    if (req.session?.login) {
+        return res.redirect("/products");
+    }
+    res.render("login");
+});
+
+// Ruta para el formulario de Register:
+router.get("/register", (req, res) => {
+    if (req.session?.login) {
+        return res.redirect("/products");
+    }
+    res.render("register");
+});
+
+// Ruta para el formulario de Perfil:
+router.get("/profile", passport.authenticate("jwt", { session: false }), (req, res) => {
+    if (!req.user) {
+        return res.redirect("/login");
+    }
+    res.render("profile", {
+        first_name: req.user.first_name,
+        user: req.user,
+    });
+});
+
+// Rutas de productos
+router.get("/products", passport.authenticate("jwt", { session: false }), onlyUser, async (req, res) => {
     try {
-
-        // Obtener parámetros de consulta, proporcionando valores predeterminados si no se especifican
-        const limit = parseInt(req.query.limit) || 9; // Número de productos por página
-        const page = parseInt(req.query.page) || 1; // Página actual
-        const skip = (page - 1) * limit; // Número de productos a omitir
-        const sortOrder = req.query.sortOrder || null; // Orden de los productos
-        const filter = req.query.filter || {}; // Filtros aplicados
-
-        const username = req.session.username; // Obtén el nombre del usuario
-        req.session.username = null; // Limpia la sesión para no mostrar el mensaje de nuevo
-
-        // Obtener los productos con paginación
-        const productos = await manager.getProducts({
-            limit,
-            skip,
-            sortOrder,
-            filter,
-            page
+        const { page = 1, limit = 9 } = req.query;  // Usamos los parámetros de paginación
+        const productos = await productManager.getProducts({
+            page: parseInt(page),
+            limit: parseInt(limit),
         });
 
-        // Contar el total de productos para calcular el número total de páginas
-        const totalProducts = await manager.countProducts(filter);
-        const totalPages = Math.ceil(totalProducts / limit);
-
-        // Determinar las páginas previa y siguiente
-        const prevPage = page > 1 ? page - 1 : null;
-        const nextPage = page < totalPages ? page + 1 : null;
-
-        // Renderizar la vista con los datos necesarios
-        res.render("home", {
-            username,
-            productos,
-            prevPage,
-            nextPage,
-            sort: sortOrder,
-            page,
-            totalPages
+        const nuevoArray = productos.docs.map((producto) => {
+            const { _id, ...rest } = producto.toObject();
+            return { _id: _id.toString(), ...rest };
         });
+
+        res.render("products", {
+            productos: nuevoArray,
+            hasPrevPage: productos.hasPrevPage,
+            hasNextPage: productos.hasNextPage,
+            prevPage: productos.prevPage,
+            nextPage: productos.nextPage,
+            currentPage: productos.page,
+            totalPages: productos.totalPages,
+            user: req.user,
+            cartId: req.user.cart._id,
+        });
+        console.log(req.user);
     } catch (error) {
-        res.status(500).send('Error al obtener productos: ' + error.message);
+        console.error("Error al obtener productos", error);
+        res.status(500).json({
+            status: "error",
+            error: "Error interno del servidor",
+        });
     }
 });
 
-
+// Ruta para ver producto por ID:
 router.get("/products/:pid", async (req, res) => {
     const id = req.params.pid;
     try {
-        const producto = await manager.getProductById(id);
+        const producto = await productManager.getProductById(id);
         if (!producto) {
             res.status(404).send("Producto no encontrado");
         } else {
@@ -66,68 +85,79 @@ router.get("/products/:pid", async (req, res) => {
     }
 });
 
+// Rutas relacionadas a carritos
 router.get("/carts/:cid", async (req, res) => {
-    const { cid } = req.params;
+    const cartId = req.params.cid;
     try {
-        const cart = await cartsManager.getCartById(cid);
-        res.render("cartDetails", { cart, cid });
+        const carrito = await cartManager.getCarritoById(cartId);
+        if (!carrito) {
+            console.log("No existe ese carrito con el id");
+            return res.status(404).json({ error: "Carrito no encontrado" });
+        }
+
+        const productosEnCarrito = carrito.products.map((item) => ({
+            product: item.product.toObject(),
+            quantity: item.quantity,
+        }));
+
+        res.render("carts", { productos: productosEnCarrito });
     } catch (error) {
-        res.status(500).send("Error al obtener el carrito");
+        console.error("Error al obtener el carrito", error);
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 });
 
-router.get("/carrito", async (req, res) => {
-    try {
-
-        let cartId = req.session.cartId || req.query.cartId; // Asegúrate de obtener el ID del carrito
-        console.log(cartId);
-        if (!cartId) {
-            const newCart = await cartsManager.addCart(); // Crear un nuevo carrito
-            req.session.cartId = newCart._id; // Guardar el nuevo ID en la sesión
-            cartId = newCart._id;
-        }
-
-        const carrito = await cartsManager.getCartById(cartId);
-
-        if (!carrito || carrito.length === 0) {
-            return res.status(404).send("El carrito está vacío");
-        }
-
-        res.render("carrito", { carrito }); // Renderiza la vista del carrito con los productos
-    } catch (error) {
-        res.status(500).send("Error al cargar el carrito: " + error.message);
-    }
+// Ruta para crear un carrito:
+router.get("/createCart", (req, res) => {
+    res.render("createCart");
 });
 
+// Ruta para eliminar un carrito:
+router.get("/deleteCart", (req, res) => {
+    res.render("deleteCart");
+});
+
+// Nueva ruta para listar carritos:
+router.get("/listCarts", passport.authenticate("jwt", { session: false }), (req, res) => {
+    if (!req.user) {
+        return res.redirect("/login");
+    }
+    res.render("listCarts", {
+        cartId: req.user.cart._id,
+    });
+});
+
+// Otras rutas
+router.get("/realtimeproducts", passport.authenticate("jwt", { session: false }), onlyAdmin, (req, res) => {
+    res.render("realtimeproducts");
+});
 
 // Ruta de logout
 router.get('/logout', (req, res) => {
-    const username = req.session.username // Guardamos el nombre de usuario antes de destruir la sesión
-    console.log(username)
+    const username = req.session.username;
+    console.log(username);
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('No se pudo cerrar sesión');
         }
-        // Redirigir a la página de despedida con el nombre del usuario
-        res.render('logout')
+        res.render('logout');
     });
 });
 
-
-router.get("/realtimeproducts", (req, res) => {
-    res.render("realtimeproducts");
+// Ruta para la página de inicio:
+router.get("/", (req, res, next) => {
+    passport.authenticate("jwt", { session: false }, (err, user) => {
+        if (err) return next(err);
+        if (!user) {
+            res.render("login");
+        } else {
+            req.user = user;
+            res.render("home", {
+                first_name: user.first_name,
+                user: user,
+            });
+        }
+    })(req, res, next);
 });
 
-router.get('/products/add', (req, res) => {
-    res.render('addProduct');
-});
-
-router.get('/login', (req, res) => {
-    res.render('login');
-});
-
-router.get('/register', (req, res) => {
-    res.render('register');
-});
-
-export default router
+export default router;

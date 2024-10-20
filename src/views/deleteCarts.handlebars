@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Carrito</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Eliminar Carrito</h1>
+        <form id="deleteCartForm">
+            <div class="form-group">
+                <label for="cartId">ID del Carrito</label>
+                <input type="text" id="cartId" class="form-control" placeholder="Ingrese el ID del carrito">
+            </div>
+            <button type="submit" class="btn btn-danger">Eliminar Carrito</button>
+        </form>
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <script>
+        document.getElementById('deleteCartForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const cartId = document.getElementById('cartId').value;
+
+            try {
+                const response = await fetch(`/api/carts/${cartId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    document.getElementById('message').innerText = 'Carrito eliminado correctamente';
+                } else {
+                    const data = await response.json();
+                    document.getElementById('message').innerText = data.error || 'No se encontró el carrito';
+                }
+            } catch (error) {
+                console.error('Error al eliminar el carrito:', error);
+                document.getElementById('message').innerText = 'Error al eliminar el carrito';
+            }
+        });
+    </script>
+</body>
+</html>

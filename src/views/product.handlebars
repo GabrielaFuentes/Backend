@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Productos</title>
 </head>
 <body>
       <!-- Barra de navegación -->
@@ -35,21 +35,108 @@
             </ul>
         </div>
     </nav>
-    <h1>{{product.title}}</h1>
 
-<div class="product-details">
-    <p>{{product.description}}</p>
-    <p>Precio: ${{product.price}}</p>
-    <p>Categoría: {{product.category}}</p>
-    <p>Stock: {{product.stock}}</p>
+    <header>
+        <h1>Detalles del producto</h1>
+    </header>
 
-    <!-- Botón para agregar al carrito -->
-    <form action="/carts/{{cartId}}/products/{{product._id}}" method="post">
-        <button type="submit">Agregar al carrito</button>
-    </form>
-</div>
+    <a href="/listCarts" style="background-color: #0e71db; padding:5px;">Ver Carritos</a>
 
-<a href="/products">Volver a la lista de productos</a>
+    <!-- Listado de productos -->
+    <div class="card-deck">
+        {{#each productos}}
+            <div class="card">
+                <img src="{{img}}" class="card-img-top" alt="Imagen del producto" />
+                <div class="card-body">
+                    <h3 class="card-title">{{title}}</h3>
+                    <h6 hidden class="card-title">{{_id}}</h6>
+                    <h4>{{description}}</h4>
+                    <h4 class="card-text">Categoría: {{category}}</h4>
+                    <h4 class="card-text"> $ {{price}}</h4>
+                    <button class="add-to-cart" onclick="openModal('{{_id}}')">Agregar al carrito</button>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Paginación -->
+    <div class="botonera">
+        {{#if hasPrevPage}}
+            <button>
+                <a href="/products?page={{prevPage}}"> Anterior </a>
+            </button>
+        {{/if}}
+        {{#if hasNextPage}}
+            <button>
+                <a href="/products?page={{nextPage}}"> Siguiente </a>
+            </button>
+        {{/if}}
+        <div>
+            <p><strong>Página </strong> {{currentPage}} <strong>de </strong> {{totalPages}} </p>
+        </div>
+    </div>
+
+    <!-- Modal para agregar productos al carrito -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <div class="modal-header">Agregar productos al carrito</div>
+            <div class="modal-body">
+                <input type="hidden" id="productId" />
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" class="form-control" placeholder="Ingrese la cantidad" id="cantidad" name="cantidad" min="1" />
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="addToCart()">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function openModal(productId) {
+            document.getElementById('productId').value = productId;
+            document.getElementById("myModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        async function addToCart() {
+            const productId = document.getElementById('productId').value;
+            const carritoId = document.getElementById('carritoId').value;
+            const cantidad = document.getElementById('cantidad').value;
+
+            try {
+                const response = await fetch(`/api/carts/${carritoId}/product/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity: cantidad })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Producto agregado al carrito exitosamente');
+                    closeModal();
+                } else {
+                    alert(result.error || 'Error al agregar el producto al carrito');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al agregar el producto al carrito');
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("myModal")) {
+                closeModal();
+            }
+        }
+    </script>
 </body>
 </html>
-
+    
+  

@@ -3,6 +3,8 @@ import local from "passport-local";
 import UserModel from "../dao/models/user.model.js";
 import { createHash, isValidPassword } from "../utils/utils.js";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { private_key } from "../utils/jsonwebtoken.js";
+
 
 const LocalStrategy = local.Strategy;
 
@@ -49,7 +51,7 @@ const initializePassport = () => {
     // Estrategia JWT
     passport.use(new JwtStrategy({
         jwtFromRequest: ExtractJwt.fromExtractors([(req) => req.cookies.jwt]),
-        secretOrKey: "palabrasecretaparatoken"
+        secretOrKey: private_key,
     }, async (jwtPayload, done) => {
         try {
             const user = await UserModel.findById(jwtPayload.id);

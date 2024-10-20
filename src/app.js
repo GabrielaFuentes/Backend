@@ -1,124 +1,46 @@
 import express from "express";
-import ProductManager from "./dao/db/product-manager-db.js";
+import { engine as handlebarsEngine } from "express-handlebars";
 import productsRouter from "./routers/products.router.js";
-import CartsManager from "./dao/db/carts-manager-db.js";
 import cartsRouter from "./routers/carts.router.js";
-import exphbs from 'express-handlebars';
 import viewsRouter from "./routers/views.router.js";
-import { Server } from "socket.io";
-import path from 'path';
-import { fileURLToPath } from 'url';
 import "./database.js"
 import passport from "passport";
 import initializePassport from './config/passport.config.js';
-import sessionRoutes from './routers/sessions.router.js';
+import sessionRouter from './routers/sessions.router.js';
 import cookieParser from "cookie-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
-import mongoose from 'mongoose';
+
 
 const PORT = 8080;
 const app = express();
 
-const mongoUrl = "mongodb+srv://gabrielafuentes21:hola7175@cluster0.cxrrp.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0"
 
-const database = async () => {
-    try {
-        await mongoose.connect(mongoUrl);
-        console.log("Conectado a MongoDB Atlas");
-    } catch (error) {
-        console.error("Error de conexión a MongoDB", error);
-        process.exit(1); // Termina el proceso si no puede conectarse
-    }
-};
-
-database();
-
-
-// Express handlebars
-app.engine("handlebars", exphbs.engine({
-    runtimeOptions: {
-        allowProtoPropertiesByDefault: true,
-    }
-}));
-// Obtener la ruta del directorio actual
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export const productManager = new ProductManager();
-export const cartsManager = new CartsManager();
-
-app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"));
-
-
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+// Middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("./src/public"));
 app.use(cookieParser());
-app.use(session({
-    secret: "hola7175",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: "mongodb+srv://gabrielafuentes21:hola7175@cluster0.cxrrp.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0" })
-}));
 
+// Passport
 initializePassport();
 app.use(passport.initialize());
 
+// Express-Handlebars
+app.engine(
+    "handlebars",
+    handlebarsEngine({
+        defaultLayout: "main", // Usamos el layout por defecto "main"
+    })
+);
+app.set("view engine", "handlebars");
+app.set("views", "./src/views");
+
+
+app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
-app.use("/", viewsRouter);
-app.use('/api/sessions', sessionRoutes);
+app.use("/api/sessions", sessionRouter);
 
-const httpServer = app.listen(PORT, () => {
-    console.log(`Escuchando en el puerto: ${PORT}`);
+
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en el http://localhost:${PORT}`);
 });
-
-const io = new Server(httpServer);
-
-io.on("connection", async (socket) => {
-    console.log("Un cliente se conectó");
-
-    // Emitir la lista de productos cuando el cliente se conecta
-    const productos = await productManager.getProducts();
-    socket.emit("productos", productos);
-
-    // Crear un carrito temporal para el cliente
-    let carrito = [];
-
-    // Escuchar cuando un cliente quiera agregar un producto al carrito
-    socket.on('agregarAlCarrito', async (id) => {
-        const productosActualizados = await productManager.getProducts(); // Actualizar la lista de productos
-        const producto = productosActualizados.find(p => p._id === id); // Buscar el producto
-        if (producto) {
-            carrito.push(producto);
-            console.log(`Producto agregado al carrito: ${producto.title}`);
-        }
-
-        // Emitir carrito actualizado
-        io.emit('carritoActualizado', carrito);
-    });
-
-    // Escuchar cuando un cliente quiera eliminar un producto del carrito
-    socket.on('eliminarProducto', (id) => {
-        carrito = carrito.filter(p => p._id !== id);
-        console.log(`Producto eliminado del carrito con id: ${id}`);
-
-        // Emitir carrito actualizado
-        io.emit('carritoActualizado', carrito);
-    });
-    app.engine("handlebars", exphbs.engine({
-        runtimeOptions: {
-            allowProtoPropertiesByDefault: true,
-        },
-        helpers: {
-            multiply: (a, b) => a * b,
-            calculateTotal: (carrito) => {
-                return carrito.reduce((total, item) => total + item.price * item.quantity, 0);
-            }
-        }
-    }));
-});
-
