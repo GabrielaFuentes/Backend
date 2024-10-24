@@ -8,6 +8,14 @@ import { private_key } from "../utils/jsonwebtoken.js";
 
 const LocalStrategy = local.Strategy;
 
+// Función para extraer el token JWT desde las cookies
+const cookieExtractor = req => {
+    let token = null;
+    if (req && req.cookies) {
+        token = req.cookies["coderCookieToken"];
+    }
+    return token;
+};
 const initializePassport = () => {
     // Estrategia de registro
     passport.use("register", new LocalStrategy({
@@ -48,19 +56,23 @@ const initializePassport = () => {
         }
     }));
 
-    // Estrategia JWT
-    passport.use(new JwtStrategy({
-        jwtFromRequest: ExtractJwt.fromExtractors([(req) => req.cookies.jwt]),
-        secretOrKey: private_key,
-    }, async (jwtPayload, done) => {
-        try {
-            const user = await UserModel.findById(jwtPayload.id);
-            if (user) return done(null, user);
-            return done(null, false);
-        } catch (error) {
-            return done(error);
-        }
-    }));
 }
+// Estrategia de autenticación JWT basada en cookies
+passport.use("jwt", new JwtStrategy({
+    jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+    secretOrKey: private_key
+}, async (jwt_payload, done) => {
+    try {
+        // Buscar al usuario por el campo 'email' que viene en el token
+        const user = await UserModel.findOne({ email: jwt_payload.email });
+        if (!user) {
+            return done(null, false);  // Usuario no encontrado
+        }
+        return done(null, user);  // Usuario encontrado
+    } catch (error) {
+        return done(error);
+    }
+}));
+
 
 export default initializePassport;

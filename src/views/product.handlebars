@@ -42,22 +42,29 @@
 
     <a href="/listCarts" style="background-color: #0e71db; padding:5px;">Ver Carritos</a>
 
-    <!-- Listado de productos -->
-    <div class="card-deck">
-        {{#each productos}}
-            <div class="card">
-                <img src="{{img}}" class="card-img-top" alt="Imagen del producto" />
-                <div class="card-body">
-                    <h3 class="card-title">{{title}}</h3>
-                    <h6 hidden class="card-title">{{_id}}</h6>
-                    <h4>{{description}}</h4>
-                    <h4 class="card-text">Categoría: {{category}}</h4>
-                    <h4 class="card-text"> $ {{price}}</h4>
-                    <button class="add-to-cart" onclick="openModal('{{_id}}')">Agregar al carrito</button>
+    <!-- Contenedor de productos -->
+    <div class="container mt-4">
+        <h1 class="mb-4">Productos</h1>
+        <div id="contenedorProductos" class="row">
+            {{#each products}}
+                <div class="col-12 col
+                -md-6 col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title
+                            ">{{title}}</h5>
+                            <p class="card-text">{{description}}</p>
+                            <p class="card-text"><strong>Precio: </strong>{{price}}</p>
+                            <p class="card-text"><strong>Stock: </strong>{{stock}}</p>
+                            <button class="btn btn-primary" onclick="openModal('{{_id}}')">Agregar al carrito</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {{/each}}
+            {{/each}}
+        </div>
     </div>
+
+
 
     <!-- Paginación -->
     <div class="botonera">

@@ -5,7 +5,9 @@ const connectionString = "mongodb+srv://gabrielafuentes21:hola7175@cluster0.cxrr
 
 const database = async () => {
     try {
-        await mongoose.connect(connectionString);
+        await mongoose.connect(connectionString, {
+            serverSelectionTimeoutMS: 5000,  // Establecer un tiempo de espera de selección del servidor
+        });
         console.log('Conectado a MongoDB Atlas');
     } catch (error) {
         console.error('Error al conectar a MongoDB Atlas:', error);

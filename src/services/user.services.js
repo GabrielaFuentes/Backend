@@ -1,26 +1,62 @@
+import UserModel from "../dao/models/user.model.js";
 import { createHash, isValidPassword } from "../utils/utils.js";
-//Importamos el repository: 
-import userRepository from "../repositories/user.repository.js";
 
 class UserService {
+    // Método para registrar un nuevo usuario
     async registerUser(userData) {
-        const existeUsuario = await userRepository.getUserByEmail(userData.email);
-        console.log(existeUsuario);
-        if (existeUsuario) throw new Error("El usuario ya existe");
-        userData.password = createHash(userData.password);
+        const { first_name, last_name, age, email, password } = userData;
+        try {
+            const userExists = await UserModel.findOne({
+                email
+            });
+            if (userExists) return {
+                message: "Correo ya registrado."
+            };
 
-        //Crear un nuevo carrito: (ver si ya no esta esto)
-        const nuevoCarrito = await cartService.createCart();
-        userData.cart = nuevoCarrito._id;
+            const newUser = {
+                first_name,
+                last_name,
+                email,
+                age,
+                password: createHash(password)
+            };
 
-        return await userRepository.createUser(userData);
+            const result = await UserModel.create(newUser);
+            return result;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
+    // Método para iniciar sesión
     async loginUser(email, password) {
-        const user = await userRepository.getUserByEmail(email);
-        if (!user || !isValidPassword(password, user)) throw new Error("Credenciales incorrectas");
-        return user;
+        try {
+            const user = await UserModel.findOne({
+                email
+            });
+            if (!user) return {
+                message: "Usuario no encontrado."
+            };
+            if (!isValidPassword(password, user)) return {
+                message: "Contraseña incorrecta."
+            };
+            return user;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+
+    // Método para obtener un usuario por su email
+    async getUserByEmail(email) {
+        try {
+            return await UserModel.findOne({
+                email
+            });
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 
-export default new UserService(); 
+export default new UserService();

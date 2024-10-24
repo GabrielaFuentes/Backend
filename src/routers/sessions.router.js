@@ -16,7 +16,6 @@ router.get('/current', passport.authenticate('jwt', { session: false }), userCon
 // Ruta de autenticación actual con JWT
 router.get('/api/sessions/current', passport.authenticate('jwt', { session: false }), userController.current);
 
-
 // Logout
 router.post("/logout", userController.logout);
 
