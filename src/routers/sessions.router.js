@@ -13,9 +13,6 @@ router.post('/login', userController.login);
 // Ruta protegida
 router.get('/current', passport.authenticate('jwt', { session: false }), userController.current);
 
-// Ruta de autenticación actual con JWT
-router.get('/api/sessions/current', passport.authenticate('jwt', { session: false }), userController.current);
-
 // Logout
 router.post("/logout", userController.logout);
 

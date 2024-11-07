@@ -56,7 +56,7 @@ class CartManager {
 
     async deleteCart(cartId) {
         try {
-            const deletedCart = await CartModel.findByIdAndDelete(cartId);
+            const deletedCart = await CartsModel.findByIdAndDelete(cartId);
             if (!deletedCart) {
                 console.log("No cart found with the provided ID");
                 return null;
@@ -72,14 +72,14 @@ class CartManager {
     async removeProductFromCart(cartId, productId) {
         try {
             // Find the cart and update by removing the specific product
-            const updatedCart = await CartModel.findByIdAndUpdate(cartId, { $pull: { products: { product: productId } } }, { new: true });
+            const updatedCart = await CartsModel.findByIdAndUpdate(cartId, { $pull: { products: { product: productId } } }, { new: true });
 
             if (!updatedCart) {
                 console.log("No cart found with the ID or the product was not found in the cart");
                 return null;
             }
 
-            console.log("Product removed from cart:", updatedCart);
+            console.log(`Producto ${productId} eliminado del carrito ${cartId}:`, updatedCart);
             return updatedCart;
         } catch (error) {
             console.log("Error removing product from cart", error);
@@ -89,7 +89,7 @@ class CartManager {
 
     async updateCart(cartId, products) {
         try {
-            const cart = await CartModel.findById(cartId);
+            const cart = await CartsModel.findById(cartId);
             if (!cart) {
                 console.log("No cart found with the ID");
                 return null;
@@ -111,25 +111,20 @@ class CartManager {
 
     async updateProductQuantity(cartId, productId, quantity) {
         try {
-            const cart = await CartModel.findById(cartId);
+            const cart = await CartsModel.findById(cartId);
             if (!cart) {
-                console.log("No cart found with the ID");
+                console.log(`No cart found with the ID ${cartId}`);
                 return null;
             }
 
-            const productToUpdate = cart.products.find((item) => item.product._id.toString() === productId);
-            console.log(
-                "Product in cart: ",
-                cart.products.find((item) => item.product.toString())
-            );
+            const productToUpdate = cart.products.find(item => item.productId.toString() === productId);
             if (!productToUpdate) {
-                console.log("Product not found in the cart");
+                console.log(`Product ${productId} not found in the cart ${cartId}`);
                 return null;
             }
 
             productToUpdate.quantity = quantity;
 
-            // Mark the "products" property as modified before saving
             cart.markModified("products");
 
             await cart.save();
@@ -140,6 +135,8 @@ class CartManager {
             throw error;
         }
     }
+
+
 
 }
 

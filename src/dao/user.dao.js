@@ -1,7 +1,5 @@
 import UserModel from "./models/user.model.js";
 
-
-
 class UserDao {
     async findById(id) {
         return await UserModel.findById(id);

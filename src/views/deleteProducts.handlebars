@@ -1,6 +1,6 @@
 <h1>Eliminar Producto</h1>
 
-<form id="deleteProductForm">
+<form id="deleteProductForm" onsubmit="return false;">
     <input type="text" id="productId" placeholder="ID del producto" required>
     <button type="button" id="btnEliminar">Eliminar</button>
 </form>
@@ -8,3 +8,26 @@
 <p id="message"></p>
 
 <script src="js/index.js"></script>
+<script>
+    document.getElementById('btnEliminar').addEventListener('click', async () => {
+        const productId = document.getElementById('productId').value;
+        const messageElement = document.getElementById('message');
+
+        try {
+            const response = await fetch(`/api/products/${productId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                messageElement.textContent = 'Producto eliminado exitosamente';
+                document.getElementById('productId').value = ''; // Limpiar el campo
+            } else {
+                const result = await response.json();
+                messageElement.textContent = result.error || 'Error al eliminar el producto';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            messageElement.textContent = 'Error al eliminar el producto';
+        }
+    });
+</script>

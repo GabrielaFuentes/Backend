@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome (opcional, para iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .modal { display: none; /* Hidden by default */ }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+    </style>
 </head>
 <body>
-      <!-- Barra de navegación -->
+    <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Mi Tienda</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -14,12 +24,8 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/products">Productos</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products">Productos</a></li>
                 <li class="nav-item">
                     <a class="nav-link" href="/carrito">
                         <i class="fas fa-shopping-cart"></i> 
@@ -47,12 +53,10 @@
         <h1 class="mb-4">Productos</h1>
         <div id="contenedorProductos" class="row">
             {{#each products}}
-                <div class="col-12 col
-                -md-6 col-lg-4 mb-4">
+                <div class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title
-                            ">{{title}}</h5>
+                            <h5 class="card-title">{{title}}</h5>
                             <p class="card-text">{{description}}</p>
                             <p class="card-text"><strong>Precio: </strong>{{price}}</p>
                             <p class="card-text"><strong>Stock: </strong>{{stock}}</p>
@@ -64,22 +68,16 @@
         </div>
     </div>
 
-
-
     <!-- Paginación -->
-    <div class="botonera">
+    <div class="botonera text-center mb-4">
         {{#if hasPrevPage}}
-            <button>
-                <a href="/products?page={{prevPage}}"> Anterior </a>
-            </button>
+            <a class="btn btn-secondary" href="/products?page={{prevPage}}">Anterior</a>
         {{/if}}
         {{#if hasNextPage}}
-            <button>
-                <a href="/products?page={{nextPage}}"> Siguiente </a>
-            </button>
+            <a class="btn btn-secondary" href="/products?page={{nextPage}}">Siguiente</a>
         {{/if}}
         <div>
-            <p><strong>Página </strong> {{currentPage}} <strong>de </strong> {{totalPages}} </p>
+            <p><strong>Página </strong>{{currentPage}} <strong>de </strong>{{totalPages}}</p>
         </div>
     </div>
 
@@ -94,12 +92,15 @@
                 <input type="number" class="form-control" placeholder="Ingrese la cantidad" id="cantidad" name="cantidad" min="1" />
             </div>
             <div class="modal-footer">
-                <button type="submit" onclick="addToCart()">Agregar</button>
+                <button class="btn btn-primary" onclick="addToCart()">Agregar</button>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function openModal(productId) {
             document.getElementById('productId').value = productId;
@@ -112,7 +113,7 @@
 
         async function addToCart() {
             const productId = document.getElementById('productId').value;
-            const carritoId = document.getElementById('carritoId').value;
+            const carritoId = document.getElementById('carritoId').value; // Asegúrate de que carritoId esté definido en el contexto
             const cantidad = document.getElementById('cantidad').value;
 
             try {
@@ -145,5 +146,3 @@
     </script>
 </body>
 </html>
-    
-  

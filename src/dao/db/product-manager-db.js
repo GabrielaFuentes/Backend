@@ -2,19 +2,19 @@ import ProductModel from "../models/products.model.js";
 
 class ProductManager {
     // Agregar un nuevo producto
-    async addProduct({ title, description, price, img, code, stock, category, thumbnails }) {
+    async addProduct({ title, description, price, code, stock, category, thumbnails }) {
         try {
             // Validar que todos los campos requeridos estén presentes
-            if (!title || !description || !price || !code || !stock || !category) {
-                console.log("Todos los campos son obligatorios");
-                return;
+            if (!title || !description || typeof price !== 'number' || !code || typeof stock !== 'number' || !category) {
+                console.log("Todos los campos son obligatorios y deben tener el formato correcto.");
+                throw new Error("Validación fallida: Campos obligatorios no válidos.");
             }
 
             // Verificar si el código del producto ya existe
-            const existeProducto = await ProductModel.findOne({ code: code });
+            const existeProducto = await ProductModel.findOne({ code });
             if (existeProducto) {
-                console.log("El código debe ser único, ¡malditooo!");
-                return;
+                console.log("El código debe ser único.");
+                throw new Error("El código debe ser único.");
             }
 
             // Crear el nuevo producto
@@ -22,7 +22,6 @@ class ProductManager {
                 title,
                 description,
                 price,
-                img,
                 code,
                 stock,
                 category,
@@ -35,8 +34,8 @@ class ProductManager {
             console.log("Producto agregado exitosamente");
 
         } catch (error) {
-            console.log("Error al agregar producto", error);
-            throw error;
+            console.error("Error al agregar producto:", error.message);
+            throw error; // Propagar el error para manejarlo en el controlador
         }
     }
 
@@ -48,7 +47,7 @@ class ProductManager {
 
             // Aplicar filtro de categoría
             if (query) {
-                queryOptions = { category: query };
+                queryOptions.category = query;
             }
 
             // Configurar opciones de ordenación
@@ -81,8 +80,8 @@ class ProductManager {
                 nextLink: hasNextPage ? `/api/products?limit=${limit}&page=${page + 1}&sort=${sort}&query=${query}` : null,
             };
         } catch (error) {
-            console.log("Error al obtener los productos", error);
-            throw error;
+            console.error("Error al obtener los productos:", error.message);
+            throw error; // Propagar el error para manejarlo en el controlador
         }
     }
 
@@ -91,14 +90,14 @@ class ProductManager {
         try {
             const producto = await ProductModel.findById(id);
             if (!producto) {
-                console.log("Producto no encontrado");
+                console.log("Producto no encontrado con ID:", id);
                 return null;
             }
-            console.log("Producto encontrado!! Claro que siiiiii");
+            console.log("Producto encontrado:", producto);
             return producto;
         } catch (error) {
-            console.log("Error al traer un producto por ID", error);
-            throw error;
+            console.error("Error al traer un producto por ID:", error.message);
+            throw error; // Propagar el error para manejarlo en el controlador
         }
     }
 
@@ -107,14 +106,14 @@ class ProductManager {
         try {
             const updateado = await ProductModel.findByIdAndUpdate(id, productoActualizado, { new: true });
             if (!updateado) {
-                console.log("No se encuentra el producto");
+                console.log("No se encuentra el producto con ID:", id);
                 return null;
             }
-            console.log("Producto actualizado con éxito, ¡como todo en mi vida!");
+            console.log("Producto actualizado con éxito:", updateado);
             return updateado;
         } catch (error) {
-            console.log("Error al actualizar el producto", error);
-            throw error;
+            console.error("Error al actualizar el producto:", error.message);
+            throw error; // Propagar el error para manejarlo en el controlador
         }
     }
 
@@ -123,13 +122,13 @@ class ProductManager {
         try {
             const deleteado = await ProductModel.findByIdAndDelete(id);
             if (!deleteado) {
-                console.log("Producto no encontrado");
+                console.log("Producto no encontrado con ID:", id);
                 return null;
             }
-            console.log("Producto eliminado correctamente");
+            console.log("Producto eliminado correctamente:", id);
         } catch (error) {
-            console.log("Error al eliminar el producto", error);
-            throw error;
+            console.error("Error al eliminar el producto:", error.message);
+            throw error; // Propagar el error para manejarlo en el controlador
         }
     }
 }

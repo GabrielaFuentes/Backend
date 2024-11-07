@@ -35,6 +35,10 @@ class ProductController {
     }
 
     async addProduct(req, res) {
+        const { title, price } = req.body;
+        if (!title || typeof price !== 'number' || price <= 0) {
+            return res.status(400).json({ error: "Título y precio son obligatorios, y el precio debe ser un número positivo." });
+        }
         const newProduct = req.body;
         try {
             await productService.addProduct(newProduct);

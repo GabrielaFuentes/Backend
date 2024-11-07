@@ -3,11 +3,17 @@ import { engine as handlebarsEngine } from "express-handlebars";
 import productsRouter from "./routers/products.router.js";
 import cartsRouter from "./routers/carts.router.js";
 import viewsRouter from "./routers/views.router.js";
-import initializeDatabase from "./database.js"; // Cambié el nombre para reflejar que es una función
+import initializeDatabase from "./database.js";
 import passport from "passport";
 import initializePassport from './config/passport.config.js';
 import sessionRouter from './routers/sessions.router.js';
 import cookieParser from "cookie-parser";
+
+import dotenv from "dotenv";
+dotenv.config();
+
+// Verifica que el JWT_SECRET esté siendo cargado
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const PORT = 8080;
 const app = express();

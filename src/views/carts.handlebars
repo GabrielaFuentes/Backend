@@ -1,8 +1,75 @@
 <h1>Carrito de Compras</h1>
 
-{{#each productos}}
-  <div>
-    <p>Producto: {{this.product.title}}</p>
-    <p>Cantidad: {{this.quantity}}</p>
-  </div>
-{{/each}}
+<div class="cart-container">
+  {{#if productos.length}}
+    {{#each productos}}
+      <div class="cart-item">
+        <p><strong>Producto:</strong> {{this.product.title}}</p>
+        <p><strong>Precio:</strong> ${{this.product.price}}</p>
+        <p><strong>Cantidad:</strong> {{this.quantity}}</p>
+
+        <!-- Botones para incrementar, decrementar o eliminar -->
+        <button class="btn-increment" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity + 1}})">+</button>
+        <button class="btn-decrement" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity - 1}})">-</button>
+        <button class="btn-remove" onclick="removeProduct('{{this.product._id}}', {{../cartId}})">Eliminar</button>
+      </div>
+    {{/each}}
+    <div class="cart-total">
+      <h3>Total: ${{calcularTotal productos}}</h3>
+    </div>
+  {{else}}
+    <p>El carrito está vacío.</p>
+  {{/if}}
+</div>
+
+<script>
+  // Función para actualizar la cantidad de un producto en el carrito
+  function updateQuantity(productId, cartId, quantity) {
+    if (quantity <= 0) {
+      alert("La cantidad debe ser al menos 1");
+      return;
+    }
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ quantity })
+    }).then(() => location.reload());
+  }
+
+  // Función para eliminar un producto del carrito
+  function removeProduct(productId, cartId) {
+    fetch(`/api/carts/${cartId}/product/${productId}`, {
+      method: "DELETE"
+    }).then(() => location.reload());
+  }
+</script>
+
+<style>
+  .cart-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  .cart-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  .cart-item p {
+    margin: 5px 0;
+  }
+  .btn-increment, .btn-decrement, .btn-remove {
+    margin: 5px 2px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .cart-total {
+    text-align: right;
+    font-weight: bold;
+  }
+</style>

@@ -33,54 +33,8 @@ router.put("/:cid", cartsController.updateCart);
 // Actualizar cantidad de productos en un carrito
 router.put("/:cid/products/:pid", cartsController.updateProductQuantity);
 
-router.get("/:cid/purchase", async (req, res) => {
-    const carritoId = req.params.cid;
-    try {
-        const carrito = await CartModel.findById(carritoId);
-        const arrayProductos = carrito.products;
+router.get("/:cid/purchase", cartsController.purchaseCart);
 
-        const productosNoDisponibles = [];
-        const productosComprados = [];
-
-        for (const item of arrayProductos) {
-            const productId = item.product;
-            const product = await ProductModel.findById(productId);
-            if (product.stock >= item.quantity) {
-                product.stock -= item.quantity;
-                await product.save();
-                productosComprados.push(item);
-            } else {
-                productosNoDisponibles.push(item);
-            }
-        }
-
-        const usuarioDelCarrito = await UsuarioModel.findOne({ cart: carritoId });
-
-        const ticket = new TicketModel({
-            purchase_datetime: new Date(),
-            amount: calcularTotal(productosComprados),
-            purchaser: usuarioDelCarrito.email,
-        });
-
-        await ticket.save();
-
-        carrito.products = productosNoDisponibles;
-
-        await carrito.save();
-
-        res.json({
-            message: "Compra generada",
-            ticket: {
-                id: ticket._id,
-                amount: ticket.amount,
-                purchaser: ticket.purchaser,
-            },
-            productosNoDisponibles: productosNoDisponibles.map((item) => item.product),
-        });
-    } catch (error) {
-        res.status(500).send("Error del servidor al crear ticket");
-    }
-});
 export default router;
 
 

@@ -15,6 +15,10 @@
         .card {
             height: 300px;
         }
+
+        .spinner {
+            display: none;
+        }
     </style>
 </head>
 
@@ -26,33 +30,44 @@
         </div>
         <input hidden id="idCarrito" value="{{cartId}}"></input>
         <div id="carritos" class="productos-container"></div>
+        <div id="message" class="mt-3"></div>
         <div id="volverRutas" class="my-4"></div>
         <div id="generarTicket" class="my-4"></div>
+        <div class="spinner-border text-primary" role="status" id="loadingSpinner">
+            <span class="sr-only">Cargando...</span>
+        </div>
     </div>
 
     <script>
         const cartId = document.getElementById("idCarrito").value;
 
         async function cargarCarrito(cartId) {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const messageDiv = document.getElementById('message');
+
+            loadingSpinner.style.display = 'block'; // Mostrar spinner
+            messageDiv.innerHTML = ''; // Limpiar mensajes previos
+
             try {
-                // Hacemos una solicitud GET a la ruta "/api/carts/:cid", donde cid es el cartId
                 const response = await fetch(`/api/carts/${cartId}`);
 
                 if (!response.ok) {
                     throw new Error('Error al obtener el carrito');
                 }
 
-                // Parseamos la respuesta JSON
                 const carrito = await response.json();
 
-                // Seleccionamos el contenedor donde queremos mostrar los productos del carrito
                 const contenedorCarritos = document.getElementById('carritos');
-                contenedorCarritos.innerHTML = ''; // Limpiamos el contenido anterior
+                contenedorCarritos.innerHTML = '';
 
-                // Calculamos el precio total
+                if (carrito.length === 0) {
+                    contenedorCarritos.innerHTML = '<p>No hay productos en el carrito.</p>';
+                    return; // Salimos de la función si no hay productos
+                }
+
                 let precioTotal = 0;
 
-                // Creamos una tarjeta por cada producto en el carrito
+
                 carrito.forEach(item => {
                     const itemTotal = item.product.price * item.quantity;
                     precioTotal += itemTotal;
@@ -71,27 +86,25 @@
                         </div>
                     `;
 
-                    // Añadimos la tarjeta del producto al contenedor
                     contenedorCarritos.appendChild(productoDiv);
                 });
 
-                // Mostramos el precio total al lado del título "Mi carrito"
                 document.getElementById('precioTotal').innerText = `Precio total: $${precioTotal}`;
 
-                // Añadimos el botón para volver a las rutas y el enlace para ver productos
                 const volverRutasDiv = document.getElementById('volverRutas');
                 volverRutasDiv.innerHTML = `
                     <button class="btn btn-primary" onclick="window.location.href='/products'">Sección de Productos</button>
                 `;
 
-                // Añadimos el botón para generar ticket
                 const generarTicketDiv = document.getElementById('generarTicket');
                 generarTicketDiv.innerHTML = `
                     <button class="btn btn-primary" onclick="window.location.href='/api/carts/${cartId}/purchase'">Generar ticket</button>
                 `;
-
             } catch (error) {
                 console.error('Error al cargar el carrito:', error);
+                messageDiv.innerHTML = '<div class="alert alert-danger">Error al cargar el carrito.</div>';
+            } finally {
+                loadingSpinner.style.display = 'none'; // Ocultar spinner
             }
         }
 
@@ -104,7 +117,7 @@
 
                 if (response.ok) {
                     alert('Producto eliminado del carrito exitosamente');
-                    cargarCarrito(cartId); // Recarga la lista de carritos para mostrar los cambios
+                    cargarCarrito(cartId);
                 } else {
                     alert('Error al eliminar producto del carrito');
                     console.error(result);
