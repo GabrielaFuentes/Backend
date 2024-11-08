@@ -5,20 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
     let carrito = [];
 
     // Fetch inicial para obtener los productos
-    mainSocket.on("productos", (data) => {
+    mainSocket.on("products", (data) => {
+        console.log("Datos recibidos:", data);  // Verifica el contenido de `data`
+
         renderProductos(data);
+
     });
 
     // Renderizar productos
-    const renderProductos = (productos) => {
+    const renderProductos = (products) => {
         const contenedorProductos = document.getElementById("contenedorProductos");
         if (!contenedorProductos) {
             console.error("El contenedor de productos no se encuentra en el DOM");
             return;
         }
+        if (!Array.isArray(products)) {
+            console.error("Se esperaba un array, pero se recibió:", products);
+            return;
+        }
         contenedorProductos.innerHTML = "";
 
-        productos.forEach(item => {
+        products.forEach(item => {
             const card = document.createElement("div");
             card.className = "card";
             card.innerHTML = `
@@ -43,10 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    const agregarAlCarrito = (producto) => {
-        carrito.push(producto);
+    const agregarAlCarrito = (products) => {
+        carrito.push(products);
         actualizarCarrito();
-        console.log(`Agregar producto ${producto.title} con id ${producto._id} al carrito`);
+        console.log(`Agregar producto ${products.title} con id ${products._id} al carrito`);
     };
 
     const actualizarCarrito = () => {
@@ -56,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const cartItemsList = document.getElementById("cart-items-list");
         cartItemsList.innerHTML = "";
 
-        carrito.forEach((producto, index) => {
+        carrito.forEach((products, index) => {
             const item = document.createElement("li");
             item.className = "list-group-item d-flex justify-content-between align-items-center";
             item.innerHTML = `
-                ${producto.title} - $${producto.price}
+                ${products.title} - $${products.price}
                 <button class="btn btn-danger btn-sm" data-index="${index}">Eliminar</button>
             `;
             item.querySelector("button").addEventListener("click", () => {

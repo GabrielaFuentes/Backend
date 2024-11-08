@@ -4,6 +4,7 @@ import ProductManager from "../dao/db/product-manager-db.js";
 import CartManager from "../dao/db/carts-manager-db.js";
 import { onlyAdmin, onlyUser } from "../middleware/auth.js";
 
+
 const router = express.Router();
 const productManager = new ProductManager();
 const cartManager = new CartManager();
@@ -43,6 +44,8 @@ router.get("/products", passport.authenticate("jwt", { session: false }), onlyUs
             page: parseInt(page),
             limit: parseInt(limit),
         });
+        console.log("Ruta /products alcanzada");
+
 
         const nuevoArray = productos.docs.map((producto) => {
             const { _id, ...rest } = producto.toObject();
@@ -58,7 +61,7 @@ router.get("/products", passport.authenticate("jwt", { session: false }), onlyUs
             currentPage: productos.page,
             totalPages: productos.totalPages,
             user: req.user,
-            cartId: req.user.cart._id,
+            //cartId: req.user.cart._id,
         });
         console.log(req.user);
     } catch (error) {
