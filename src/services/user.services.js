@@ -1,60 +1,67 @@
 import UserModel from "../dao/models/user.model.js";
+import CartModel from "../dao/models/carts.model.js";
 import { createHash, isValidPassword } from "../utils/utils.js";
 
 class UserService {
-    // Método para registrar un nuevo usuario
     async registerUser(userData) {
-        const { first_name, last_name, age, email, password } = userData;
         try {
-            const userExists = await UserModel.findOne({
-                email
-            });
-            if (userExists) return {
-                message: "Correo ya registrado."
-            };
+            const { email, password, cart, ...otherData } = userData;
+            
+            const userExists = await UserModel.findOne({ email });
+            if (userExists) {
+                throw new Error("El correo ya está registrado.");
+            }
 
-            const newUser = {
-                first_name,
-                last_name,
+            const newUser = new UserModel({
+                ...otherData,
                 email,
-                age,
-                password: createHash(password)
-            };
+                password: createHash(password),
+                cart: cart,
+                role: email.includes('@admin.com') ? 'admin' : 'user'
+            });
 
-            const result = await UserModel.create(newUser);
-            return result;
+            await newUser.save();
+            return newUser;
         } catch (error) {
-            throw new Error(error.message);
+            console.error("Error en registerUser:", error);
+            throw error;
         }
     }
 
-    // Método para iniciar sesión
     async loginUser(email, password) {
         try {
-            const user = await UserModel.findOne({
-                email
-            });
-            if (!user) return {
-                message: "Usuario no encontrado."
-            };
-            if (!isValidPassword(password, user)) return {
-                message: "Contraseña incorrecta."
-            };
+            const user = await UserModel.findOne({ email });
+            if (!user) {
+                throw new Error("Usuario no encontrado.");
+            }
+
+            if (!isValidPassword(password, user)) {
+                throw new Error("Contraseña incorrecta.");
+            }
+
+            // Verificar y crear carrito si no existe
+            if (!user.cart) {
+                const newCart = await CartModel.create({
+                    user: user._id,
+                    products: []
+                });
+                user.cart = newCart._id;
+                await user.save();
+            }
+
             return user;
         } catch (error) {
-            throw new Error(error.message);
+            console.error("Error en loginUser:", error);
+            throw error;
         }
     }
 
-
-    // Método para obtener un usuario por su email
     async getUserByEmail(email) {
         try {
-            return await UserModel.findOne({
-                email
-            });
+            return await UserModel.findOne({ email }).populate('cart');
         } catch (error) {
-            throw new Error(error.message);
+            console.error("Error en getUserByEmail:", error);
+            throw error;
         }
     }
 }

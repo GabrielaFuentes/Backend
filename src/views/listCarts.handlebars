@@ -60,7 +60,7 @@
                 const contenedorCarritos = document.getElementById('carritos');
                 contenedorCarritos.innerHTML = '';
 
-                if (carrito.length === 0) {
+                if (!Array.isArray(carrito) || carrito.length === 0) {
                     contenedorCarritos.innerHTML = '<p>No hay productos en el carrito.</p>';
                     return; // Salimos de la función si no hay productos
                 }

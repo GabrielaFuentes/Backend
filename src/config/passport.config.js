@@ -1,12 +1,11 @@
 import passport from "passport";
 import local from "passport-local";
 import UserModel from "../dao/models/user.model.js";
+import CartsModel from "../dao/models/carts.model.js";
 import { createHash, isValidPassword } from "../utils/utils.js";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import CartManager from "../dao/db/carts-manager-db.js";
 
 const LocalStrategy = local.Strategy;
-const cartManager = new CartManager();
 
 const cookieExtractor = req => {
     let token = null;
@@ -21,24 +20,32 @@ const initializePassport = () => {
         passReqToCallback: true,
         usernameField: "email"
     }, async (req, username, password, done) => {
-        const { first_name, last_name, age, role } = req.body;
+        const { first_name, last_name, age } = req.body;
         try {
             const userExists = await UserModel.findOne({ email: username });
-            if (userExists) return done(null, false, { message: "Correo ya registrado." });
+            if (userExists) {
+                return done(null, false, { message: "El correo ya está registrado." });
+            }
 
-            const cart = await cartManager.createCart();
-            const newUser = {
+            // Crear carrito para el nuevo usuario
+            const newCart = new CartsModel({
+                timestamp: new Date(),
+                products: []
+            });
+            await newCart.save();
+
+            const newUser = new UserModel({
                 first_name,
                 last_name,
                 email: username,
-                cart_id: cart._id,
                 age,
                 password: createHash(password),
-                role: role || "user"
-            };
+                cart: newCart._id,
+                role: username.includes('@admin.com') ? 'admin' : 'user'
+            });
 
-            const result = await UserModel.create(newUser);
-            return done(null, result);
+            await newUser.save();
+            return done(null, newUser);
         } catch (error) {
             return done(error);
         }
@@ -49,8 +56,12 @@ const initializePassport = () => {
     }, async (email, password, done) => {
         try {
             const user = await UserModel.findOne({ email });
-            if (!user) return done(null, false, { message: "Usuario no encontrado." });
-            if (!isValidPassword(password, user)) return done(null, false, { message: "Contraseña incorrecta." });
+            if (!user) {
+                return done(null, false, { message: "Usuario no encontrado." });
+            }
+            if (!isValidPassword(password, user)) {
+                return done(null, false, { message: "Contraseña incorrecta." });
+            }
             return done(null, user);
         } catch (error) {
             return done(error);
@@ -59,7 +70,7 @@ const initializePassport = () => {
 
     passport.use("jwt", new JwtStrategy({
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-        secretOrKey: process.env.JWT_SECRET // usa la clave desde el entorno
+        secretOrKey: process.env.JWT_SECRET
     }, async (jwt_payload, done) => {
         try {
             const user = await UserModel.findOne({ email: jwt_payload.email });

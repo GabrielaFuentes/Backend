@@ -1,21 +1,22 @@
 <h1>Carrito de Compras</h1>
+{{log products}}
 
 <div class="cart-container">
-  {{#if productos.length}}
-    {{#each productos}}
+  {{#if products.length}}
+    {{#each products}}
       <div class="cart-item">
         <p><strong>Producto:</strong> {{this.product.title}}</p>
         <p><strong>Precio:</strong> ${{this.product.price}}</p>
         <p><strong>Cantidad:</strong> {{this.quantity}}</p>
 
         <!-- Botones para incrementar, decrementar o eliminar -->
-        <button class="btn-increment" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity + 1}})">+</button>
-        <button class="btn-decrement" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity - 1}})">-</button>
+<button class="btn-increment" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity}} + 1)">+</button>
+<button class="btn-decrement" onclick="updateQuantity('{{this.product._id}}', {{../cartId}}, {{this.quantity}} - 1)">-</button>
         <button class="btn-remove" onclick="removeProduct('{{this.product._id}}', {{../cartId}})">Eliminar</button>
       </div>
     {{/each}}
     <div class="cart-total">
-      <h3>Total: ${{calcularTotal productos}}</h3>
+      <h3>Total: ${{total}}</h3>  <!-- Mostrar el total calculado -->
     </div>
   {{else}}
     <p>El carrito está vacío.</p>

@@ -1,20 +1,45 @@
-//Verificamos si es Admin: 
+import jwt from 'jsonwebtoken';
 
+export function isAuthenticated(req, res, next) {
+    const token = req.cookies.coderCookieToken;
+    if (!token) {
+        return res.redirect('/login');
+    }
 
-export function onlyAdmin(req, res, next) {
-    if (req.user.role === "admin") {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
         next();
-    } else {
-        res.status(403).send("Acceso denegado, solo Administradores");
+    } catch (error) {
+        res.clearCookie('coderCookieToken');
+        return res.redirect('/login');
     }
 }
 
-
-export function onlyUser(req, res, next) {
-    if (req.user.role === "user") {
+export function isAdmin(req, res, next) {
+    if (req.user && req.user.role === 'admin') {
         next();
     } else {
-        res.status(403).send("Acceso denegado, este lugar es solo para usuarios Comunes");
+        res.status(403).render('error', {
+            message: 'Acceso denegado. Se requieren permisos de administrador.'
+        });
     }
+}
 
+export function isUser(req, res, next) {
+    if (req.user && req.user.role === 'user') {
+        next();
+    } else {
+        res.status(403).render('error', {
+            message: 'Acceso denegado. Esta sección es solo para usuarios.'
+        });
+    }
+}
+
+export function redirectIfAuthenticated(req, res, next) {
+    const token = req.cookies.coderCookieToken;
+    if (token) {
+        return res.redirect('/');
+    }
+    next();
 }

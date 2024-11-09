@@ -1,45 +1,28 @@
-import express from "express";
+import express from 'express';
+import CartsController from '../controllers/cart.controller.js';
+import { isAuthenticated } from '../middleware/auth.js';
+
 const router = express.Router();
 
-import CartsController from "../controllers/carts.controller.js";
-const cartsController = new CartsController();
-import CartModel from "../dao/models/carts.model.js";
-import ProductModel from "../dao/models/products.model.js";
-import UsuarioModel from "../dao/models/user.model.js";
-import TicketModel from "../dao/models/tickets.model.js";
-import { calcularTotal } from "../utils/utils.js";
+// Rutas protegidas que requieren autenticación
+router.use(isAuthenticated);
 
 // Crear un nuevo carrito
-router.post("/", cartsController.createCart);
+router.post('/', CartsController.createCart);
 
-// Obtener los productos de un carrito
-router.get("/:cid", cartsController.getCartProducts);
+// Obtener productos de un carrito
+router.get('/:cid', CartsController.getCartProducts);
 
-// Agregar productos a un carrito
-router.post("/:cid/product/:pid", cartsController.addProductToCart);
+// Agregar producto a un carrito
+router.post('/:cid/product/:pid', CartsController.addProductToCart);
 
-// Obtener todos los carritos
-router.get("/", cartsController.getAllCarts);
+// Eliminar producto de un carrito
+router.delete('/:cid/product/:pid', CartsController.deleteProductFromCart);
 
-// Eliminar un carrito
-router.delete("/:cid", cartsController.deleteCart);
+// Actualizar carrito completo
+router.put('/:cid', CartsController.updateCart);
 
-// Eliminar un producto de un carrito
-router.delete("/:cid/product/:pid", cartsController.deleteProductFromCart);
-
-// Actualizar un carrito
-router.put("/:cid", cartsController.updateCart);
-
-// Actualizar cantidad de productos en un carrito
-router.put("/:cid/products/:pid", cartsController.updateProductQuantity);
-
-router.get("/:cid/purchase", cartsController.purchaseCart);
+// Realizar compra del carrito
+router.post('/:cid/purchase', CartsController.purchaseCart);
 
 export default router;
-
-
-
-
-
-
-

@@ -83,9 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarCarrito();
     };
 
-    document.querySelector(".nav-link").addEventListener("click", () => {
-        $('#cartModal').modal('show');
-    });
+
+    const navLink = document.querySelector(".nav-link");
+    if (navLink) {
+        navLink.addEventListener("click", () => {
+            $('#cartModal').modal('show');
+        });
+    } else {
+        console.warn("El elemento .nav-link no se encuentra en el DOM");
+    }
+
 
     // Escuchar el submit del formulario
     const addProductForm = document.getElementById("addProductForm");

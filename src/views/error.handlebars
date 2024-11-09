@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - TechStore</title>
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        .error-message {
+            color: #dc3545;
+            margin: 1rem 0;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>¡Ups! Algo salió mal</h1>
+        <div class="error-message">
+            {{#if message}}
+                {{message}}
+            {{else}}
+                Ha ocurrido un error inesperado
+            {{/if}}
+        </div>
+        <a href="/" class="back-button">Volver al inicio</a>
+    </div>
+</body>
+</html>

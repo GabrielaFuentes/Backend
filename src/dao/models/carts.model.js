@@ -1,24 +1,27 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const cartsCollection = "carts";
-
-const cartsSchema = new mongoose.Schema({
-    timestamp: { type: String, required: true },
-    products: [
-        {
-            productId: { type: mongoose.Schema.Types.ObjectId, ref: "products" },
-            quantity: { type: Number, required: true, default: 1 }
+const cartSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+            default: 1
         }
-    ],
+    }]
+}, {
+    timestamps: true
 });
 
-// Middleware para asegurarse de que los productos se llenan correctamente
-cartsSchema.pre('findOne', function (next) {
-    this.populate('products.productId', '_id title price');
-    next();
-});
+const CartModel = mongoose.model('Cart', cartSchema);
 
-const cartsModel = mongoose.model(cartsCollection, cartsSchema);
-
-export default cartsModel;
-
+export default CartModel;

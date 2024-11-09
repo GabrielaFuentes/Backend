@@ -3,81 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos</title>
-    <!-- Enlace a Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Enlace a Font Awesome para íconos -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>TechStore - Tu tienda de tecnología</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1518997554305-5eea2f04e384?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        .featured-products {
+            padding: 40px 0;
+            background-color: #f8f9fa;
+        }
+        .product-card {
+            height: 100%;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-     <!-- Barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Mi Tienda</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/products">Productos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/carrito">
-                        <i class="fas fa-shopping-cart"></i> 
-                        Carrito 
-                        <span id="cart-count" class="badge badge-pill badge-danger">0</span>
-                    </a>
-                </li>
-                {{#if username}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Cerrar sesión ({{username}})</a>
-                </li>
-                {{/if}}
-            </ul>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">TechStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {{#if user}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Productos</a>
+                        </li>
+                        {{#if (eq user.role "admin")}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">Panel Admin</a>
+                        </li>
+                        {{/if}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <i class="fas fa-shopping-cart"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Cerrar Sesión</a>
+                        </li>
+                    {{else}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">Registrarse</a>
+                        </li>
+                    {{/if}}
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <!-- Mensaje de bienvenida -->
-    {{#if username}}
-    <div class="welcome-message text-center mt-3">
-      <h2> Bienvenido, {{username}}</h2>
-      <h3> Rol: {{username.role}}</h3>
-    </div>
-    {{/if}}
-    
-    {{!-- <!-- Contenedor de productos -->
-    <div class="container mt-4">
-        <h1 class="mb-4">Productos</h1>
-        <div id="contenedorProductos" class="row">
-            {{#each products}}
-                <!-- Aquí va la lógica para mostrar los productos -->
-            {{/each}}
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 animate__animated animate__fadeIn">Bienvenido a TechStore</h1>
+            {{#if user}}
+                <p class="lead animate__animated animate__fadeIn animate__delay-1s">
+                    ¡Hola {{user.first_name}}! Descubre nuestros productos destacados
+                </p>
+            {{else}}
+                <p class="lead animate__animated animate__fadeIn animate__delay-1s">
+                    Tu destino para la mejor tecnología al mejor precio
+                </p>
+                <div class="mt-4 animate__animated animate__fadeIn animate__delay-2s">
+                    <a href="/login" class="btn btn-primary btn-lg me-3">Iniciar Sesión</a>
+                    <a href="/register" class="btn btn-outline-light btn-lg">Registrarse</a>
+                </div>
+            {{/if}}
         </div>
+    </div>
 
-        <!-- Paginación -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {{#if prevPage}}
-                    <li class="page-item">
-                        <a class="page-link" href="/products?page={{prevPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">⬅️ Página anterior</a>
-                    </li>
-                {{/if}}
-                {{#if nextPage}}
-                    <li class="page-item">
-                        <a class="page-link" href="/products?page={{nextPage}}{{#if sort}}&sortOrder={{sort}}{{/if}}">Página siguiente ➡️</a>
-                    </li>
-                {{/if}}
-            </ul>
-        </nav>
-    </div> --}}
+    {{#if user}}
+    <!-- Productos Destacados -->
+    <section class="featured-products">
+        <div class="container">
+            <h2 class="text-center mb-4">Productos Destacados</h2>
+            <div class="row">
+                {{#each featuredProducts}}
+                <div class="col-md-4">
+                    <div class="card product-card">
+                        <img src="{{thumbnails.[0]}}" class="card-img-top product-image" 
+                             alt="{{title}}"
+                             onerror="this.src='https://via.placeholder.com/300x200?text={{title}}'">
+                        <div class="card-body">
+                            <h5 class="card-title">{{title}}</h5>
+                            <p class="card-text">{{description}}</p>
+                            <p class="card-text">
+                                <strong>Precio: </strong>${{price}}
+                            </p>
+                            <button class="btn btn-primary" onclick="addToCart('{{_id}}')">
+                                Agregar al carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            <div class="text-center mt-4">
+                <a href="/products" class="btn btn-lg btn-primary">Ver todos los productos</a>
+            </div>
+        </div>
+    </section>
+    {{/if}}
 
-    <!-- Enlace a Bootstrap JS y dependencias -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        async function addToCart(productId) {
+            try {
+                const response = await fetch(`/api/carts/{{user.cart}}/product/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Producto agregado!',
+                        text: 'El producto se agregó al carrito correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    throw new Error('Error al agregar al carrito');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo agregar el producto al carrito'
+                });
+            }
+        }
+    </script>
 </body>
 </html>

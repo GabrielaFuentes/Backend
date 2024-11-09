@@ -1,63 +1,77 @@
-import CartsModel from "./models/carts.model.js";
-import ProductsModel from "./models/products.model.js"; // Asegúrate de importar el modelo de productos
+import CartModel from "./models/carts.model.js";
 
 class CartDao {
-    async create() {
-        const newCart = new CartsModel();
-        return await newCart.save();
+    async create(userId) {
+        try {
+            const newCart = new CartModel({
+                user: userId,
+                products: []
+            });
+            return await newCart.save();
+        } catch (error) {
+            console.error("Error al crear carrito:", error);
+            throw error;
+        }
     }
 
     async findCartById(cartId) {
-        return await CartsModel.findById(cartId).populate('products.productId', '_id title price');
+        try {
+            return await CartModel.findById(cartId).populate('products.productId');
+        } catch (error) {
+            console.error("Error al buscar carrito:", error);
+            throw error;
+        }
     }
 
     async addProductToCart(productId, cartId, quantity) {
-        const cart = await CartsModel.findById(cartId);
-        if (!cart) {
-            throw new Error('Cart not found');
+        try {
+            const cart = await CartModel.findById(cartId);
+            if (!cart) throw new Error("Carrito no encontrado");
+
+            const productIndex = cart.products.findIndex(
+                item => item.productId.toString() === productId
+            );
+
+            if (productIndex >= 0) {
+                cart.products[productIndex].quantity += quantity;
+            } else {
+                cart.products.push({ productId, quantity });
+            }
+
+            return await cart.save();
+        } catch (error) {
+            console.error("Error al agregar producto al carrito:", error);
+            throw error;
         }
-        const product = await ProductsModel.findById(productId);
-        if (!product) {
-            throw new Error('Product not found');
-        }
-        const productIndex = cart.products.findIndex((p) => p.productId.toString() === productId);
-        if (productIndex > -1) {
-            cart.products[productIndex].quantity += quantity;
-        } else {
-            cart.products.push({ productId, quantity });
-        }
-        return await cart.save();
     }
 
     async removeProductFromCart(productId, cartId) {
-        const cart = await CartsModel.findById(cartId);
-        if (!cart) {
-            throw new Error('Cart not found');
+        try {
+            const cart = await CartModel.findById(cartId);
+            if (!cart) throw new Error("Carrito no encontrado");
+
+            cart.products = cart.products.filter(
+                item => item.productId.toString() !== productId
+            );
+
+            return await cart.save();
+        } catch (error) {
+            console.error("Error al eliminar producto del carrito:", error);
+            throw error;
         }
-        cart.products = cart.products.filter((p) => p.productId.toString() !== productId);
-        return await cart.save();
     }
 
     async updateCart(cartId, products) {
-        return await CartsModel.findByIdAndUpdate(cartId, { products }, { new: true });
-    }
-
-    async updateProductQuantity(productId, quantity, cartId) {
-        const cart = await CartsModel.findById(cartId);
-        if (!cart) {
-            throw new Error('Cart not found');
+        try {
+            return await CartModel.findByIdAndUpdate(
+                cartId,
+                { products },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error al actualizar carrito:", error);
+            throw error;
         }
-        const productIndex = cart.products.findIndex((p) => p.productId.toString() === productId);
-        if (productIndex > -1) {
-            cart.products[productIndex].quantity = quantity;
-        } else {
-            throw new Error('Product not found');
-        }
-        return await cart.save();
-    }
-
-    async deleteCart(cartId) {
-        return await CartsModel.findByIdAndDelete(cartId);
     }
 }
 

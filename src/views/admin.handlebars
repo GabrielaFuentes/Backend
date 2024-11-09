@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - TechStore</title>
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .product-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .stock-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stock-input {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">TechStore</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/products">Ver Tienda</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <h1 class="mb-4">Panel de Administración</h1>
+        
+        <div class="mb-4">
+            <h2>Gestión de Stock</h2>
+            <div id="productsList">
+                <!-- Los productos se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                const productsContainer = document.getElementById('productsList');
+                
+                productsContainer.innerHTML = data.payload.docs.map(product => `
+                    <div class="product-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>${product.title}</h3>
+                            <span class="badge bg-${product.stock > 0 ? 'success' : 'danger'}">
+                                Stock: ${product.stock}
+                            </span>
+                        </div>
+                        <p>${product.description}</p>
+                        <p>Precio: $${product.price}</p>
+                        <div class="stock-controls">
+                            <input type="number" 
+                                   id="stock-${product._id}" 
+                                   class="form-control stock-input" 
+                                   min="0" 
+                                   placeholder="Nuevo stock">
+                            <button class="btn btn-primary" 
+                                    onclick="updateStock('${product._id}')">
+                                Actualizar Stock
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                alert('Error al cargar los productos');
+            }
+        }
+
+        async function updateStock(productId) {
+            const stockInput = document.getElementById(`stock-${productId}`);
+            const newStock = parseInt(stockInput.value);
+
+            if (isNaN(newStock) || newStock < 0) {
+                alert('Por favor ingrese un valor válido para el stock');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ stock: newStock })
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Stock actualizado',
+                        text: 'El stock se ha actualizado correctamente',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    loadProducts(); // Recargar la lista de productos
+                } else {
+                    throw new Error('Error al actualizar el stock');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar el stock'
+                });
+            }
+        }
+
+        // Cargar productos al iniciar
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>
